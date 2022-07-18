@@ -1,0 +1,1 @@
+export const EXPIRE_TIME = 60 * 60

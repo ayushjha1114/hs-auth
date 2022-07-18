@@ -1,0 +1,15 @@
+export const ErrorMessage = {
+    'USER_NOT_FOUND': 'User not found',
+    'MOBILE_NUMBER_ALREADY_EXIST': 'Mobile number already exist',
+    'EMAIL_ID_ALREADY_EXIST': 'Email Id already exist',
+    'INVALID_OTP': 'Invalid otp',
+    'INVALID_LINK': 'Invalid link',
+    'EMAIL_NOT_UPDATED': 'Email updation failed, Please contact admin',
+    'MOBILE_NOT_UPDATED': 'Mobile updation failed, Please contact admin',
+    'INCORRECT_PASSWORD': 'Current password entered is incorrect',
+    'PASSWORD_NOT_UPDATED': 'Error occurred while updating password.',
+    'CHANGE_PASSWORD_ERROR': 'There may be error occurred while changing password.',
+    'SAME_PASSWORD': 'Current and new password should not be same.',
+    'SESSIONS_ERROR': 'There may be error occurred while fetching sessions.',
+    'TECHNICAL_ERROR': 'Technical Error',
+}

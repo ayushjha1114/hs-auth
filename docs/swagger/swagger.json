@@ -1,0 +1,110 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Auth",
+    "contact": {},
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://devapi-aaa.aaa.com/auth/api/v1",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/hc-index": {
+      "get": {
+        "tags": ["Misc"],
+        "summary": "This api is health check api used to check if the service is properly running",
+        "operationId": "healthcheck",
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": ["Misc"],
+        "summary": "This api is used to validate and logging in a particular distributor in the portal",
+        "operationId": "login",
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "description": "",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string",
+              "example": "application/json"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/loginrequest"
+              },
+              "example": {
+                "login_id": "116683",
+                "password": "U2FsdGVkX1+imUQ9TCYlY3oPG3Pq4uH3NQeDc2EQrWg="
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        },
+        "deprecated": false
+      }
+    },
+    
+  },
+
+  "components": {
+    "securitySchemes": {
+      "api_key": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    },
+    "schemas": {
+      "loginrequest": {
+        "title": "loginrequest",
+        "required": ["login_id", "password"],
+        "type": "object",
+        "properties": {
+          "login_id": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "login_id": "116683",
+          "password": "U2FsdGVkX1+imUQ9TCYlY3oPG3Pq4uH3NQeDc2EQrWg="
+        }
+      }
+    }
+  },
+
+  "security": [{ "api_key": [] }],
+  "tags": [
+    {
+      "name": "Misc",
+      "description": ""
+    }
+  ]
+}
