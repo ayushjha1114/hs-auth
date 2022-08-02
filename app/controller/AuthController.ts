@@ -4,18 +4,17 @@ const jwt = require('jsonwebtoken');
 import { AES, enc } from 'crypto-js';
 import moment from 'moment';
 import helper from '../helper/bcrypt';
-import mailEvents from '../events/notification';
-import otpEvents from '../helper/otp';
+// import mailEvents from '../events/notification';
+// import otpEvents from '../helper/otp';
 import logger from '../lib/logger';
 import pool from '../lib/postgresql';
 import responseTemplate from '../helper/responseTemplate';
 import { EXPIRE_TIME } from '../constant';
 import Template from "../helper/responseTemplate";
 import { AuthService } from '../service/authService';
-import { SuccessMessage } from '../constant/sucess.message';
-import { ErrorMessage } from '../constant/error.message';
-const otpConfig = global['configuration'].otp;
-// const saltRounds = 10;
+import { SuccessMessage } from '../constant/successMessage';
+import { ErrorMessage } from '../constant/errorMessage';
+import OtpConfig from '../config/environments/dev';
 
 class authController {
 
@@ -28,8 +27,8 @@ class authController {
                 WHERE distributor_id = '${distributorId}' AND type = '${type}'`;
             const { rows } = await client.query(retryOtpSqlStatement);
             if (rows && rows.length) {
-                const retryCountLimit = otpConfig.retryCountLimit ? parseInt(otpConfig.retryCountLimit) : 5;
-                const retryIntervalLimit = otpConfig.retryIntervalLimit ? parseInt(otpConfig.retryIntervalLimit) : 60;
+                const retryCountLimit = OtpConfig.retryCountLimit ? parseInt(OtpConfig.retryCountLimit) : 5;
+                const retryIntervalLimit = OtpConfig.retryIntervalLimit ? parseInt(OtpConfig.retryIntervalLimit) : 60;
                 if (rows[0].retry_count && rows[0].retry_time && (parseInt(rows[0].retry_count) >= retryCountLimit)) {
                     const retryTime = moment(rows[0].retry_time);
                     const now = moment();
@@ -62,8 +61,8 @@ class authController {
                 WHERE distributor_id = '${distributorId}' AND type = '${type}'`;
             const { rows } = await client.query(retryOtpSqlStatement);
             if (rows && rows.length) {
-                const invalidCountLimit = otpConfig.invalidCountLimit ? parseInt(otpConfig.invalidCountLimit) : 5;
-                const invalidIntervalLimit = otpConfig.invalidIntervalLimit ? parseInt(otpConfig.invalidIntervalLimit) : 60;
+                const invalidCountLimit = OtpConfig.invalidCountLimit ? parseInt(OtpConfig.invalidCountLimit) : 5;
+                const invalidIntervalLimit = OtpConfig.invalidIntervalLimit ? parseInt(OtpConfig.invalidIntervalLimit) : 60;
                 if (rows[0].invalid_count && rows[0].invalid_time && (parseInt(rows[0].invalid_count) >= invalidCountLimit)) {
                     const invalidTime = moment(rows[0].invalid_time);
                     const now = moment();
@@ -109,32 +108,32 @@ class authController {
         try {
             logger.info('Send OTP Controller');
             // logic to send otp to registered mobile number and update the expiredAt & refrence in otp table
-            const otpEventResponse = await otpEvents.send_otp(otpData);
-            if (otpEventResponse.status == 202) {
-                logger.info('If OTP send save the otp into db');
-                const referenceCode = otpEventResponse.data.id;
-                const sqlStatement = `
-                    INSERT INTO 
-                        otp (distributor_id, mobile_number, otp_code, refrence_code, expires_at, type, retry_count, retry_time) 
-                    VALUES 
-                        ('${otpData.login_id}', ${otpData.mobile}, ${otpData.otp}, '${referenceCode}', CURRENT_TIMESTAMP + (interval '3 minute'), 'RESET_PASS', 1, CURRENT_TIMESTAMP) 
-                    ON CONFLICT ON CONSTRAINT unique_otp DO UPDATE SET
-                        mobile_number = EXCLUDED.mobile_number, otp_code = EXCLUDED.otp_code, retry_count = otp.retry_count + 1, refrence_code = EXCLUDED.refrence_code, expires_at = EXCLUDED.expires_at
-                    RETURNING *`;
-                const result = await client.query(sqlStatement);
-                client.release();
-                if (result) {
-                    logger.info('If success (otp update in db) return true');
-                    return { success: true }
-                } else {
-                    logger.info('else fail (otp update in db) return false');
-                    return { success: false }
-                }
-            } else {
-                client.release();
-                logger.info('else case (otp send failed) return false');
-                return { success: false }
-            }
+            // const otpEventResponse = await otpEvents.send_otp(otpData);
+            // if (otpEventResponse.status == 202) {
+            //     logger.info('If OTP send save the otp into db');
+            //     const referenceCode = otpEventResponse.data.id;
+            //     const sqlStatement = `
+            //         INSERT INTO 
+            //             otp (distributor_id, mobile_number, otp_code, refrence_code, expires_at, type, retry_count, retry_time) 
+            //         VALUES 
+            //             ('${otpData.login_id}', ${otpData.mobile}, ${otpData.otp}, '${referenceCode}', CURRENT_TIMESTAMP + (interval '3 minute'), 'RESET_PASS', 1, CURRENT_TIMESTAMP) 
+            //         ON CONFLICT ON CONSTRAINT unique_otp DO UPDATE SET
+            //             mobile_number = EXCLUDED.mobile_number, otp_code = EXCLUDED.otp_code, retry_count = otp.retry_count + 1, refrence_code = EXCLUDED.refrence_code, expires_at = EXCLUDED.expires_at
+            //         RETURNING *`;
+            //     const result = await client.query(sqlStatement);
+            //     client.release();
+            //     if (result) {
+            //         logger.info('If success (otp update in db) return true');
+            //         return { success: true }
+            //     } else {
+            //         logger.info('else fail (otp update in db) return false');
+            //         return { success: false }
+            //     }
+            // } else {
+            //     client.release();
+            //     logger.info('else case (otp send failed) return false');
+            //     return { success: false }
+            // }
         } catch (error) {
             client.release();
             logger.error(`Error in send OTP:`, error);
@@ -192,15 +191,9 @@ class authController {
             }
             const sqlStatement = `
                 SELECT 
-                    tbl1.id,tbl1.name,tbl1.email,tbl1.mobile,tbl2.city,tbl2.postal_code,tbl2.region_id,tbl2.group_id,tbl2.tse_code,tbl2.pdp_day,tbl2.market 
+                    *
                 FROM 
-                    user_profile tbl1 
-                INNER JOIN 
-                    distributor_master tbl2 
-                ON 
-                    tbl2.profile_id = tbl1.id 
-                WHERE 
-                    tbl1.id='${id}' AND tbl2.deleted = false
+                    user_profile 
             `;
 
             const { rows } = await client.query(sqlStatement);
@@ -312,12 +305,12 @@ class authController {
                     failedAttemptCount++;
                     await AuthService.insertSession({ failedAttemptCount, login_id, UUID });
                     logger.info('If password does not match');
-                    return res.status(401).json(Template.userdoesNotExist(ErrorMessage.INVALID_CREDS));
+                    return res.status(401).json(Template.userdoesNotExist('ErrorMessage.INVALID_CREDS'));
                 }
             }
             else {
                 logger.info('If Login Id does not match');
-                return res.status(403).json(Template.userdoesNotExist(ErrorMessage.NOT_FOUND_BY_ID));
+                return res.status(403).json(Template.userdoesNotExist('ErrorMessage.NOT_FOUND_BY_ID'));
             }
         } catch (error) {
             failedAttemptCount++;
@@ -353,7 +346,7 @@ class authController {
                     callback('Error occurred while updating record');
                 } else {
                     logger.info('Send the mail');
-                    mailEvents.emit("forgotPassword", userData, password);
+                    // mailEvents.emit("forgotPassword", userData, password);
                     callback(null, 'done');
                 }
             } else {
@@ -511,40 +504,6 @@ class authController {
         } catch (error) {
             logger.error(`Error in logout:`, error);
             return res.status(500).json(Template.error(ErrorMessage.TECHNICAL_ERROR, ErrorMessage.LOGOUT_ERROR_INSERT));
-        }
-    }
-
-    static async getSSOUserDetail(req, res) {
-        try {
-            const { emailId } = req.params;
-            logger.info('SSO user detail controller');
-            const responseData = await AuthService.getSSOUserDetail(emailId);
-
-            if (responseData && responseData.length > 0) {
-                logger.info(SuccessMessage.SSO_USER_DETAILS);
-                return res.json(Template.success(responseData, SuccessMessage.SSO_USER_DETAILS));
-            }
-            else {
-                logger.error(ErrorMessage.NO_ACCESS);
-                return res.json(Template.error(responseData, ErrorMessage.NO_ACCESS));
-            }
-        } catch (error) {
-            logger.error('Error in SSO user details:', error);
-            return res.status(500).json(Template.error(ErrorMessage.TECHNICAL_ERROR, ErrorMessage.SSO_DETAILS_ERROR));
-        }
-    }
-
-    static async fetchAppLevelSettings(req, res) {
-        logger.info(`inside AuthController.fetchAppLevelSettings`);
-        try {
-            const response = await AuthService.fetchAppLevelSettings();
-            if (response && response.length) {
-                return res.status(200).json(Template.success(response, SuccessMessage.APP_LEVEL_SETTINGS_FETCHED));
-            }
-            return res.status(200).json(Template.errorMessage(ErrorMessage.APP_LEVEL_SETTINGS_ERROR));
-        } catch (error) {
-            logger.error(`catched error in AuthController.fetchAppLevelSettings: `, error);
-            return res.status(500).json(Template.errorMessage(ErrorMessage.APP_LEVEL_SETTINGS_ERROR));
         }
     }
 }

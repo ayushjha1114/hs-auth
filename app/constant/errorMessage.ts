@@ -12,4 +12,10 @@ export const ErrorMessage = {
     'SAME_PASSWORD': 'Current and new password should not be same.',
     'SESSIONS_ERROR': 'There may be error occurred while fetching sessions.',
     'TECHNICAL_ERROR': 'Technical Error',
+    'UNAUTHORIZED': 'User not authorized to see details',
+    'LOGOUT_ERROR_INSERT': 'Error occurred while logging out.',
+    'PERMISSION_ISSUE': 'You are not permitted to access this resource',
+    'LOGIN_ERROR': 'There may be error occurred while login',
+
+    'USER_INACTIVE': 'User profile is disabled, please contact admin',
 }

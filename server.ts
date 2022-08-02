@@ -1,6 +1,5 @@
 require('dotenv').config();
 import http from 'http';
-import debug from 'debug';
 // After you declare "app"
 const env = process.env.NODE_ENV || 'dev'
 console.log(` using ${process.env.NODE_ENV} to run application`);

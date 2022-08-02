@@ -1,6 +1,4 @@
-/* eslint quote-props: 0 */
-require('dotenv').config();
-export { }
+import 'dotenv/config';
 const configuration: any = {};
 
 configuration.pgsql = {
@@ -38,11 +36,6 @@ configuration.email = {
     pass: process.env.SMTP_PASSWORD,
   }
 }
-// configuration.twilio = {
-//   sid: process.env.SID,
-//   token: process.env.TOKEN,
-//   phone: process.env.PHONE,
-// }
 configuration.url = {
   FE: process.env.FE,
   API: process.env.API,
@@ -51,9 +44,5 @@ configuration.admin = {
   cognitoClientId: process.env.COGNITO_CLIENT_ID,
   cognitoIdpName: process.env.COGNITO_IDP_NAME
 }
-// configuration.uploadpath = {
-//   uploaddir: process.env.UPLOAD_DIR,
-//   profiledir: process.env.PROFILE_PICTURE_DIR
-// }
 
-module.exports = configuration;
+export default configuration;
