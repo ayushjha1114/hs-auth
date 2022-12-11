@@ -12,7 +12,7 @@ export const AdminModel = {
         logger.info(`inside model AdminModel.getUserByMobileNumber`);
         const client = await pool.connect();
         try {
-            const sqlStatement = `SELECT first_name, last_name, email, mobile, role FROM user_profile WHERE mobile = '${mobile_number}'`;
+            const sqlStatement = `SELECT id, first_name, last_name, email, mobile, role, password FROM user_profile WHERE mobile = '${mobile_number}'`;
             const rows = await client.query(sqlStatement);
             client.release();
             return rows
