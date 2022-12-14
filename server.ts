@@ -1,66 +1,79 @@
-require('dotenv').config();
-import http from 'http';
-// After you declare "app"
-const env = process.env.NODE_ENV || 'dev'
-console.log(` using ${process.env.NODE_ENV} to run application`);
-global.configuration = require(`./app/config/environments/${env}`);
-import App from './express';
+require('dotenv').config()
+import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+import cors from 'cors';
+import path from 'path';
+import express from 'express';
+import logger from 'morgan';
+import bodyParser from 'body-parser';
+import swaggerUi from 'swagger-ui-express'
+import swaggerDocument from './docs/swagger/swagger.json'
+import errorHandlers from './app/helper/errorHandler';
+import nocache from 'nocache';
 
-const port = (process.env.AUTH_SERVICE_PORT);
-import logger from './app/lib/logger';
-import postgresql from './app/lib/postgresql';
-global['connection'] = postgresql;
-const server = http.createServer(App);
-server.listen(process.env.AUTH_SERVICE_PORT);
-server.on('error', onError);
-server.on('listening', onListening);
+import customLogger from './app/lib/logger';
+import router from './app/routes';
+
+const port = process.env.AUTH_SERVICE_PORT || 3002;
 
 
-function onError(error: NodeJS.ErrnoException): void {
-  if (error.syscall !== 'listen') throw error;
-  let bind = (typeof port === 'string') ? 'Pipe ' + port : 'Port ' + port;
-  switch (error.code) {
-    case 'EACCES':
-      console.error(`${bind} requires elevated privileges`);
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(`${bind} is already in use`);
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
+const app = express();
+app.use(logger('dev'));
+app.disable('x-powered-by');
+app.disable('etag');
+app.use(helmet());
+app.use(nocache());
+
+app.use(helmet.noSniff()); // set X-Content-Type-Options header
+app.use(helmet.frameguard()); // set X-Frame-Options header
+app.use(helmet.xssFilter()); // set X-XSS-Protection header
+app.use(bodyParser.urlencoded({ extended: false, limit: '5mb' })); // parse application/x-www-form-urlencoded
+app.use(bodyParser.json()); // parse application/json
+// register all custom Middleware
+app.use(cors({ optionsSuccessStatus: 200 }));
+app.use(cookieParser()); // cookies-parser
+// manage session by cookies
+app.set('views', path.join(__dirname, 'views')); // setting views
+app.set('view engine', 'hbs');
+// server side template rendering
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use('/auth', router);
+app.use('/auth/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(errorHandlers.internalServerError);
+app.use(errorHandlers.PageNotFound);
+
 
 const gracefulStopServer = function () {
-  // Wait 10 secs for existing connection to close and then exit.
-  setTimeout(() => {
-    logger.info('Shutting down server');
-    process.exit(0);
-  }, 1000);
-};
-
-process.on('uncaughtException', (err) => {
-  logger.error('Uncaught exception', err);
-  process.exit(1);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error('unhandledRejection', {
-    promise,
-    reason
+    // Wait 10 secs for existing connection to close and then exit.
+    setTimeout(() => {
+      customLogger.info('Shutting down server');
+      process.exit(0);
+    }, 1000);
+  };
+  
+  process.on('uncaughtException', (err) => {
+    customLogger.error('Uncaught exception', err);
+    process.exit(1);
   });
-  logger.error('reason: ', reason);
-  logger.error('promise: ', promise);
-  process.exit(1);
-});
+  
+  process.on('unhandledRejection', (reason, promise) => {
+    customLogger.error('unhandledRejection', {
+      promise,
+      reason
+    });
+    customLogger.error('reason: ', reason);
+    customLogger.error('promise: ', promise);
+    process.exit(1);
+  });
+  
+  process.on('SIGINT', gracefulStopServer);
+  process.on('SIGTERM', gracefulStopServer);
 
-process.on('SIGINT', gracefulStopServer);
-process.on('SIGTERM', gracefulStopServer);
 
-function onListening(): void {
-  let addr = server.address();
-  let bind = (typeof addr === 'string') ? `pipe ${addr}` : `port ${addr.port}`;
-  console.log(`Listening on ${bind}`);
-}
+
+app.listen(port, () => {
+    console.log(`Server listening on the port  ${port} in ${process.env.NODE_ENV}`);
+})

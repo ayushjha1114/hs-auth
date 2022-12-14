@@ -16,28 +16,18 @@ const helper = {
     }
     return bcrypt.compareSync(userPassword, password);
   },
-  authRedirectUrl( path ) {
-		return `${url.FE}/validate-token/${path}`;
-	},
 	
   buildUserToken(data) {
     return {
-        login_id: data.id,
-		type: data.type,
-		name: data.name,
-		hasPassword: data.password ? true : false
+      id: data.id,
+      name: data.name,
+      role: data.role,
+      mobile: data.mobile,
+      email: data.email
     }
   },
   resource( path ) {
 		return `${url.API}${path}`;
-	},
-  getFileExtension( file ) {
-		let extensions = file.split('.');
-		if ( extensions.length === 1 ) {
-			return 'jpg';
-		} else {
-			return extensions.pop();
-		}
 	},
 	randomString() {
 		return Math.random().toString(36).substring(2, 7);

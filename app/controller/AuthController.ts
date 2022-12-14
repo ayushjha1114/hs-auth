@@ -1,11 +1,8 @@
 require('dotenv').config();
-declare function require(name: string);
 const jwt = require('jsonwebtoken');
 import { AES, enc } from 'crypto-js';
 import moment from 'moment';
 import helper from '../helper/bcrypt';
-// import mailEvents from '../events/notification';
-// import otpEvents from '../helper/otp';
 import logger from '../lib/logger';
 import pool from '../lib/postgresql';
 import responseTemplate from '../helper/responseTemplate';
@@ -227,38 +224,6 @@ class authController {
         }
     }
 
-    static async getUserByDistributorId(id, cb) {
-        const client = await pool.connect();
-        try {
-            logger.info('Get user by distributaion by Id');
-            const sqlStatement = `
-    SELECT 
-      tbl1.id,tbl1.name,tbl1.email,tbl1.mobile,tbl2.city,tbl2.postal_code,tbl2.region_id,tbl2.group_id,tbl2.tse_code,tbl2.pdp_day,tbl2.market 
-    FROM 
-      user_profile tbl1 
-    INNER JOIN 
-      distributor_master tbl2 
-    ON 
-      tbl2.profile_id = tbl1.id 
-    WHERE 
-      tbl1.id='${id}' AND tbl2.deleted = false
-    `;
-
-            const { rows } = await client.query(sqlStatement);
-            client.release();
-            if (rows) {
-                logger.info('If data found return data');
-                cb(null, rows[0]);
-            } else {
-                logger.info('If data not found return false');
-                cb('User does not exist in system', null);
-            }
-        } catch (error) {
-            client.release();
-            logger.error(`Error in Get User by distribution id:`, error);
-            cb('Technical Error', null);
-        }
-    }
 
     static async validateUser(req, res) {
         const UUID = req.headers['x-correlation-id'];
@@ -287,34 +252,12 @@ class authController {
                 const decryptedPassword = bytes.toString(enc.Utf8);
 
                 const flag = helper.comparePassword(decryptedPassword, userData[0].password);
-                const responseData = await AuthService.getLastFailedAttemptCount(login_id);
-
-                failedAttemptCount = responseData.length && responseData[responseData.length - 1].failed_attempts_count;
-                if (flag) {
-                    failedAttemptCount = 0;
-                    await AuthService.insertSession({ failedAttemptCount, login_id, UUID });
-                    logger.info('If password match return true');
-                    jwt.sign(helper.buildUserToken(buildTokenPayload), process.env.SECRET_KEY, { expiresIn: EXPIRE_TIME }, (tokError, token) => {
-                        return res.status(200).json({
-                            success: true,
-                            message: SuccessMessage.LOGIN,
-                            token
-                        });
-                    });
-                } else {
-                    failedAttemptCount++;
-                    await AuthService.insertSession({ failedAttemptCount, login_id, UUID });
-                    logger.info('If password does not match');
-                    return res.status(401).json(Template.userdoesNotExist('ErrorMessage.INVALID_CREDS'));
-                }
             }
             else {
                 logger.info('If Login Id does not match');
                 return res.status(403).json(Template.userdoesNotExist('ErrorMessage.NOT_FOUND_BY_ID'));
             }
         } catch (error) {
-            failedAttemptCount++;
-            await AuthService.insertSession({ failedAttemptCount, login_id, UUID });
             logger.error(`Error in login:`, error);
             return res.status(500).json(Template.error(ErrorMessage.TECHNICAL_ERROR, ErrorMessage.LOGIN_ERROR));
         }
@@ -449,61 +392,29 @@ class authController {
         }
     }
 
-    static async getSessionLogs(req, res) {
-        try {
-            const { body } = req;
-            const { from, to, type, login_id = '', search } = body;
-            logger.info(`Session logs controller with date range from ${from} to ${to}`);
-
-            if (req.user) {
-                const { roles } = req.user;
-                if (roles === 'TSE' || roles === 'DIST_ADMIN') {
-                    return res.status(403).json(Template.error('Unauthorized', ErrorMessage.PERMISSION_ISSUE));
-                }
-            }
-
-            const sessionLogs = await AuthService.getSessionLogs({ type, from, to, login_id, search });
-            logger.info(`Session logs in Auth Controller: ${JSON.stringify(sessionLogs)}`);
-
-            if (sessionLogs && sessionLogs.length > 0) {
-                const fetchedCount = await AuthService.getTotalSessionLogsCount({ type, from, to, login_id, search });
-
-                const totalCount = fetchedCount && fetchedCount[0] && fetchedCount[0].count ? fetchedCount[0].count : 0;
-                logger.info(`${SuccessMessage.FETCHED_SESSIONS}`);
-                return res.json(Template.success({ totalCount, result: sessionLogs }, SuccessMessage.FETCHED_SESSIONS));
-            }
-            else {
-                logger.error(`No session logs found`);
-                return res.json(Template.successMessage(sessionLogs));
-            }
-        } catch (error) {
-            logger.error(`Error in session logs:`, error);
-            return res.status(500).json(Template.error(ErrorMessage.TECHNICAL_ERROR, ErrorMessage.SESSIONS_ERROR));
-        }
-    }
 
     static async logout(req, res) {
         try {
             const { user } = req;
             let login_id = user.id;
             logger.info('Logout controller');
-            const responseData = await AuthService.getLastFailedAttemptCount(login_id);
-            const UUID = responseData.length && responseData[responseData.length - 1].correlation_id;
+            // const responseData = await AuthService.getLastFailedAttemptCount(login_id);
+            // const UUID = responseData.length && responseData[responseData.length - 1].correlation_id;
 
-            const result = await AuthService.insertSession({ login_id, UUID });
+            // const result = await AuthService.insertSession({ login_id, UUID });
 
-            if (result.rowCount === 1) {
+            // if (result.rowCount === 1) {
 
-                logger.info(`${SuccessMessage.LOGOUT}`);
-                return res.json(Template.successMessage(SuccessMessage.LOGOUT));
-            }
-            else {
-                logger.error(`${ErrorMessage.LOGOUT_ERROR_INSERT}`);
-                return res.status(400).json(Template.errorMessage(ErrorMessage.LOGOUT_ERROR_INSERT));
-            }
+            //     logger.info(`${SuccessMessage.LOGOUT}`);
+            //     return res.json(Template.successMessage(SuccessMessage.LOGOUT));
+            // }
+            // else {
+            //     logger.error(`${ErrorMessage.LOGOUT_ERROR_INSERT}`);
+            //     return res.status(400).json(Template.errorMessage(ErrorMessage.LOGOUT_ERROR_INSERT));
+            // }
         } catch (error) {
             logger.error(`Error in logout:`, error);
-            return res.status(500).json(Template.error(ErrorMessage.TECHNICAL_ERROR, ErrorMessage.LOGOUT_ERROR_INSERT));
+            return res.status(500).json(Template.error(ErrorMessage.TECHNICAL_ERROR, 'ErrorMessage.LOGOUT_ERROR_INSERT'));
         }
     }
 }

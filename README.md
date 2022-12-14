@@ -9,7 +9,7 @@ A backend micro-service in NodeJS and Express web framework to provide REST APIs
 ```
 git clone https://github.com/ayushjha1114/hs-auth.git
 npm install
-npm run dev
+npm start
 ```
 
 # Application configuration
