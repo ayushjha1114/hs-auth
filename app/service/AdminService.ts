@@ -3,7 +3,7 @@
  * @description defines admin service methods
 */
 
-import { AdminModel } from "../models/AdminModel";
+import { AdminModel } from "../modelsXX/AdminModel";
 
 export const AdminService = {
 

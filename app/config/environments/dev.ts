@@ -2,12 +2,11 @@ import 'dotenv/config';
 const configuration: any = {};
 
 configuration.pgsql = {
-  pgsql_connection_url: process.env.PGSQL_CONNECTION_URL,
-  pgsql_host: process.env.PGSQL_HOST,
-  pgsql_database_name: process.env.PGSQL_DATABASE_NAME,
-  pgsql_username: process.env.PGSQL_USERNAME,
-  pgsql_password: process.env.PGSQL_PASSWORD,
-  pgsql_port: process.env.PGSQL_PORT
+  host: process.env.PGSQL_HOST,
+  database_name: process.env.PGSQL_DATABASE_NAME,
+  username: process.env.PGSQL_USERNAME,
+  password: process.env.PGSQL_PASSWORD,
+  port: process.env.PGSQL_PORT
 }
 
 configuration.URL = {

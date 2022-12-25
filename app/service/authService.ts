@@ -2,7 +2,7 @@
  * @file user.service
  * @description defines user service methods
 */
-import { AuthModel } from '../models/authModel';
+import { AuthModel } from '../modelsXX/authModel';
 
 export const AuthService = {
     /**
