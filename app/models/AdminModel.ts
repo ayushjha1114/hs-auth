@@ -28,7 +28,8 @@ export const AdminModel = {
         logger.info(`inside model AdminModel.getUserByMobileEmail`);
         const client = await pool.connect();
         try {
-            const sqlStatement = `SELECT first_name, last_name, email, mobile, role FROM user_profile WHERE mobile = ${mobile} AND email = '${email}'`;
+            const sqlStatement = `SELECT first_name, last_name, email, mobile, role FROM user_profile WHERE mobile = '${mobile}' AND email = '${email}'`;
+            console.log("🚀 ~ file: AdminModel.ts:33 ~ getUserByMobileEmail ~ sqlStatement", sqlStatement)
             const rows = await client.query(sqlStatement);
             client.release();
             return rows
@@ -42,7 +43,7 @@ export const AdminModel = {
 
     async insertNewUser(data) {
         const { first_name, middle_name = null, last_name = null, mobile, email, 
-            password, date_of_birth, gender = null, role, current_address = null, permanent_address = null, 
+            password, date_of_birth, gender = null, role = 'USER', current_address = null, permanent_address = null, 
             current_state = null, current_city = null, current_pincode = null, permanent_state = null, permanent_city = null, permanent_pincode = null, aadhaar_number = null } = data;
 
         const client = await pool.connect();

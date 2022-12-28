@@ -70,8 +70,8 @@ class AdminController {
             logger.info('Validate user controller');
             const userData: any = await AdminService.getUserByMobileEmail(mobile, email);
 
-            if (userData && userData.length) {
-                logger.info('Check mobile and email exists');
+            if (userData && userData.rows.length === 0 && userData.rowCount === 0) {
+                logger.info('mobile and email not exists');
                 const result: any = await AdminService.insertNewUser(body);
                 if (result.rowCount === 1) {
                     return res.json(Template.successMessage(SuccessMessage.PASSWORD_UPDATED));
@@ -80,7 +80,7 @@ class AdminController {
                 }
             }
             else {
-                logger.info('If mobile and email does not match');
+                logger.info('mobile and email already exists');
                 return res.status(404).json(Template.userdoesNotExist('ErrorMessage.NOT_FOUND_BY_ID'));
             }
         } catch (error) {
