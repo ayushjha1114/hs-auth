@@ -97,10 +97,32 @@ class AdminController {
             const role = 'USER';
             let userList = await AdminService.getUserList(role, limit, offset);
             let userCount = await AdminService.getUserListCount(role);
-            if (userList) {
+            if (userList && userList.rows.length > 0 && userList.rowCount !== 0) {
                 logger.info('If success getUserList', userList && userList.rowCount);
+                let modifiedList = userList.rows.map(item => {
+                    item.password = '';
+                    return item;
+                })
                 return res.json(Template.success({ rowCount: userList.rowCount, 
-                    rows: userList.rows, totalCount: userCount.rows[0].count }, 'SuccessMessage.USER_LIST'));
+                    rows: modifiedList, totalCount: userCount.rows[0].count }, 'SuccessMessage.USER_LIST'));
+            }
+            return res.json(Template.errorMessage('ErrorMessage._LIST_ERROR'));
+
+        } catch (error) {
+            logger.error(`error getUserList ${error}`);
+            return res.json(Template.error());
+
+        }
+    }
+
+    static async updateUserDetail(req: Request, res: Response) {
+        try {
+            logger.info('function updateUserDetail');
+            const { body } = req;
+            let userData = await AdminService.updateUserDetail(body);
+            if (userData) {
+                logger.info('If success getuserData', userData && userData.rowCount);
+                return res.json(Template.success({ rows: userData.rows }, 'SuccessMessage.USER_LIST'));
             }
             return res.json(Template.errorMessage('ErrorMessage._LIST_ERROR'));
 

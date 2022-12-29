@@ -70,7 +70,7 @@ export const AdminModel = {
         logger.info(`inside model AdminModel.getUserList`);
         const client = await pool.connect();
         try {
-            let sqlStatement = `SELECT first_name, last_name, email, mobile, role FROM user_profile WHERE role = '${role}'`;
+            let sqlStatement = `SELECT * FROM user_profile WHERE role = '${role}'`;
             const limitOffset = ` ORDER BY id LIMIT ${limit} OFFSET ${offset} `;
             sqlStatement += limitOffset;
             const rows = await client.query(sqlStatement);
@@ -81,7 +81,6 @@ export const AdminModel = {
             client.release();
             return null;
         }
-
     },
 
     async getUserListCount(role: string) {
@@ -94,6 +93,34 @@ export const AdminModel = {
             return rows
         } catch (error) {
             logger.error(`error in AdminModel.getUserListCount: `, error);
+            client.release();
+            return null;
+        }
+    },
+
+    async updateUserDetail(data) {
+        logger.info(`inside model AdminModel.updateUserDetail`);
+        let updateStatement = '';
+        const dataKeys = Object.keys(data);
+        let count = 0;
+        const client = await pool.connect();
+        try {
+            let sqlStatement = `UPDATE user_profile SET `;
+            Object.values(data).map(item => {
+                if (dataKeys[count] !== 'mobile') {
+                    updateStatement += ` ${dataKeys[count]} = '${item}',`;
+                }
+                count++;
+            });
+            sqlStatement += updateStatement.replace(/,\s*$/, "");
+            const whereStatement = ` WHERE mobile = '${data.mobile}'`;
+            sqlStatement += whereStatement;
+            console.log("🚀 ~ file: AdminModel.ts:118 ~ updateUserDetail ~ sqlStatement", sqlStatement)
+            const rows = await client.query(sqlStatement);
+            client.release();
+            return rows
+        } catch (error) {
+            logger.error(`error in AdminModel.updateUserDetail: `, error);
             client.release();
             return null;
         }

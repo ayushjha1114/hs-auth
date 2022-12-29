@@ -20,12 +20,14 @@ export const AdminService = {
     },
 
     async getUserList(role: string, limit: number, offset: number) {
-
         return await AdminModel.getUserList(role, limit, offset);
     },
     
     async getUserListCount(role: string) {
-
         return await AdminModel.getUserListCount(role)
+    },
+
+    async updateUserDetail(data: object) {
+        return await AdminModel.updateUserDetail(data);
     },
 };

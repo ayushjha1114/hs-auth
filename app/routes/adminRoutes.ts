@@ -23,6 +23,7 @@ export class AdminRouter {
         this.router.post("/login", /* expressJoiValidator(expressJoi.loginUser), */ AdminController.validateAdmin);
         this.router.post("/register_user", /* expressJoiValidator(expressJoi.loginUser), */ AdminController.registerUser);
         this.router.get("/user-list",/*  adminMiddleware.validateToken, expressJoiValidator(expressJoi.distributorList), */ AdminController.getUserList);
+        this.router.patch("/user",/*  adminMiddleware.validateToken, expressJoiValidator(expressJoi.distributorList), */ AdminController.updateUserDetail);
     }
 }
 
