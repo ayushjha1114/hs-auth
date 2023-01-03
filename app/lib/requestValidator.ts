@@ -7,26 +7,34 @@ const appLevelConfigurationItem = Joi.object().keys({
 });
 
 const validation = {
-  loginUser: {
-    body: {
-      login_id: Joi.string().required(),
+  loginUser: Joi.object({
+      mobile: Joi.string().length(10).pattern(/^[0-9]+$/).required(),
       password: Joi.string().min(6).max(50).required()
-    }
-  },
+    }),
   changePassword: {
     body: {
       current_password: Joi.string().required(),
       new_password: Joi.string().min(6).max(50).required()
     },
   },
-  createUser: {
-    body: {
-      username: Joi.string().min(4).max(50).required(),
-      password: Joi.string().min(6).max(50).required(),
+  createUser: Joi.object({
+      first_name: Joi.string().max(50).required(),
       email: Joi.string().regex(/^[\w.]+@[\w]+?(\.[a-zA-Z]{2,3}){1,3}$/).required(),
-      verify_password: Joi.string().min(6).max(50).required()
-    },
-  },
+      password: Joi.string().min(6).max(50).required(),
+      mobile: Joi.string().length(10).pattern(/^[0-9]+$/).required(),
+      role: Joi.string().valid('ADMIN', 'USER', 'ADMIN', 'ENGINEER').required(),
+      date_of_birth: Joi.string(),
+      gender:  Joi.string().valid('male', 'female', 'other'),
+      aadhaar_number: Joi.string().length(12).pattern(/^[0-9]+$/),
+      current_address: Joi.string(),
+      permanent_address: Joi.string(),
+      current_state: Joi.string(),
+      current_city: Joi.string(),
+      current_pincode: Joi.string(),
+      permanent_state: Joi.string(),
+      permanent_city: Joi.string(),
+      permanent_pincode: Joi.string(),
+    }),
   resetPassword: {
     body: {
       login_id: Joi.string().required(),
@@ -122,54 +130,5 @@ const validation = {
       // changed_by: Joi.string().required()
     }
   },
-  updateDistributorSettings: {
-    params: {
-      distributor_id: Joi.string().required()
-    },
-    body: {
-      enable_po_so_sms: Joi.boolean(),
-      enable_po_so_email: Joi.boolean(),
-      enable_invoice_sync_sms: Joi.boolean(),
-      enable_invoice_sync_email: Joi.boolean(),
-      enable_login: Joi.boolean(),
-      sms_tse_asm: Joi.boolean(),
-      email_tse_asm: Joi.boolean(),
-      remarks: Joi.string().required(),
-      // changed_by: Joi.string().required()
-    }
-  },
-  alertCommentList: {
-    params: {
-      distributor_id: Joi.string().required(),
-    }
-  },
-  updateDistributorMobile: {
-    body: {
-      mobile_number: Joi.string().regex(/^[0-9]{10,12}$/).required(),
-    },
-    params: {
-      distributor_id: Joi.string().required(),
-    }
-  },
-  updateDistributorEmail: {
-    body: {
-      email: Joi.string().email().required(),
-    },
-    params: {
-      distributor_id: Joi.string().required(),
-    }
-  },
-  updateTseUserSetting: {
-    body: {
-      user_id: Joi.string().required(),
-      enableLogin: Joi.string().valid('ACTIVE', 'INACTIVE'),
-      role: Joi.string().valid('SUPER_ADMIN', 'DIST_ADMIN', 'TSE')
-    }
-  },
-  updateAppLevelSettings: {
-    body: {
-      app_level_configuration: Joi.array().items(appLevelConfigurationItem).min(1).required(),
-    }
-  }
 };
 export default validation

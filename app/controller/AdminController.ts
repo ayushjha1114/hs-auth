@@ -37,6 +37,7 @@ class AdminController {
                     console.log("🚀 ~ file: AdminController.ts:36 ~ AdminController ~ validateAdmin ~ decryptedPassword", decryptedPassword)
         
                     const flag = helper.comparePassword(decryptedPassword, userData.rows[0].password);
+                    console.log("🚀 ~ file: AdminController.ts:40 ~ AdminController ~ validateAdmin ~ flag", flag)
     
                     if (flag) {
                         logger.info('If password match return true');
@@ -65,13 +66,20 @@ class AdminController {
     
     static async registerUser(req, res) {
         const { body } = req;
-        const { mobile, email } = body;
+        let { mobile, email, password:  passwordHash } = body;
         try {
             logger.info('Validate user controller');
             const userData: any = await AdminService.getUserByMobileEmail(mobile, email);
-
+            
             if (userData && userData.rows.length === 0 && userData.rowCount === 0) {
-                logger.info('mobile and email not exists');
+                logger.info('If mobile and email already not exists');
+                let password = Math.random().toString(36).slice(2);
+                if (passwordHash && passwordHash != null && passwordHash != "") {
+                    const bytes = AES.decrypt(passwordHash, 'qwerty987secret');
+                    password = bytes.toString(enc.Utf8);
+                }
+                const hash = helper.generateSaltValue(password);
+                body.password = hash;
                 const result: any = await AdminService.insertNewUser(body);
                 if (result.rowCount === 1) {
                     return res.json(Template.successMessage(SuccessMessage.PASSWORD_UPDATED));
@@ -119,6 +127,7 @@ class AdminController {
         try {
             logger.info('function updateUserDetail');
             const { body } = req;
+            console.log("🚀 ~ file: AdminController.ts:130 ~ AdminController ~ updateUserDetail ~ body", body)
             let userData = await AdminService.updateUserDetail(body);
             if (userData) {
                 logger.info('If success getuserData', userData && userData.rowCount);
