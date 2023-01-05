@@ -16,7 +16,7 @@ const validation: any = {
                 console.log("🚀 ~ file: adminMiddleware.ts:16 ~ validateToken ~ payload", payload)
                 logger.info('Admin Middleware payload', payload);
                 if (payload && payload.role === 'ADMIN') {
-                    logger.error(`Admin Middleware if role is admin`);
+                    logger.info(`Admin Middleware if role is admin : Success`);
                     next();
                 } else {
                     res.status(403).json(responseTemplate.error('Unauthorized', ErrorMessage.PERMISSION_ISSUE));

@@ -68,7 +68,7 @@ class AdminController {
         const { body } = req;
         let { mobile, email, password:  passwordHash } = body;
         try {
-            logger.info('Validate user controller');
+            logger.info('Register user controller');
             const userData: any = await AdminService.getUserByMobileEmail(mobile, email);
             
             if (userData && userData.rows.length === 0 && userData.rowCount === 0) {

@@ -70,7 +70,7 @@ export const AdminModel = {
         logger.info(`inside model AdminModel.getUserList`);
         const client = await pool.connect();
         try {
-            let sqlStatement = `SELECT * FROM user_profile WHERE role = '${role}'`;
+            let sqlStatement = `SELECT * FROM user_profile`;
             const limitOffset = ` ORDER BY id LIMIT ${limit} OFFSET ${offset} `;
             sqlStatement += limitOffset;
             const rows = await client.query(sqlStatement);
@@ -87,7 +87,7 @@ export const AdminModel = {
         logger.info(`inside model AdminModel.getUserListCount`);
         const client = await pool.connect();
         try {
-            const sqlStatement = `SELECT COUNT(id) FROM user_profile WHERE role = '${role}'`;
+            const sqlStatement = `SELECT COUNT(id) FROM user_profile`;
             const rows = await client.query(sqlStatement);
             client.release();
             return rows
