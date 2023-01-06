@@ -23,6 +23,8 @@ const validation = {
       password: Joi.string().min(6).max(50).required(),
       mobile: Joi.string().length(10).pattern(/^[0-9]+$/).required(),
       role: Joi.string().valid('ADMIN', 'USER', 'ADMIN', 'ENGINEER').required(),
+      middle_name: Joi.string(),
+      last_name: Joi.string(),
       date_of_birth: Joi.string(),
       gender:  Joi.string().valid('male', 'female', 'other'),
       aadhaar_number: Joi.string().length(12).pattern(/^[0-9]+$/),

@@ -15,29 +15,26 @@ class AdminController {
         const { mobile } = body;
         try {
             logger.info('Validate admin controller');
-            const userData: any = await AdminService.getUserByMobileNumber(mobile);
-            console.log("🚀 ~ file: AdminController.ts ~ line 19 ~ AdminController ~ validateAdmin ~ userData", userData.rows)
+            const response: any = await AdminService.getUserByMobileNumber(mobile);
+            const userData = JSON.parse(JSON.stringify(response, null, 2));
     
-            if (userData && userData.rows.length) {
+            if (userData !== 'null') {
                 logger.info('Check mobile number exists');
 
                 // if (userData.rows[0].role !== 'ADMIN') {
                 //     return res.status(403).json(Template.error('Unauthorized', ErrorMessage.PERMISSION_ISSUE));
                 // } else {
                     const buildTokenPayload = {
-                        id: userData.rows[0].id,
-                        name: `${userData.rows[0].first_name} ${userData.rows[0].last_name}`,
-                        email: userData.rows[0].email,
-                        mobile: userData.rows[0].mobile,
-                        role: userData.rows[0].role
+                        id: userData.id,
+                        name: `${userData.first_name} ${userData.last_name}`,
+                        email: userData.email,
+                        mobile: userData.mobile,
+                        role: userData.role
                     };
                     const bytes = AES.decrypt(body.password, 'qwerty987secret');
                     const decryptedPassword = bytes.toString(enc.Utf8);
-                    console.log("🚀 ~ file: AdminController.ts:39 ~ AdminController ~ validateAdmin ~ userData.rows[0].password", userData.rows[0].password)
-                    console.log("🚀 ~ file: AdminController.ts:36 ~ AdminController ~ validateAdmin ~ decryptedPassword", decryptedPassword)
         
-                    const flag = helper.comparePassword(decryptedPassword, userData.rows[0].password);
-                    console.log("🚀 ~ file: AdminController.ts:40 ~ AdminController ~ validateAdmin ~ flag", flag)
+                    const flag = helper.comparePassword(decryptedPassword, userData.password);
     
                     if (flag) {
                         logger.info('If password match return true');
@@ -50,13 +47,13 @@ class AdminController {
                         });
                     } else {
                         logger.info('If password does not match');
-                        return res.status(401).json(Template.userdoesNotExist('ErrorMessage.INVALID_CREDS'));
+                        return res.status(401).json(Template.userdoesNotExist(ErrorMessage.INVALID_CREDS));
                     }
                 // }
             }
             else {
                 logger.info('If mobile number does not match');
-                return res.status(404).json(Template.userdoesNotExist('ErrorMessage.NOT_FOUND_BY_ID'));
+                return res.status(404).json(Template.userdoesNotExist(ErrorMessage.USER_NOT_FOUND));
             }
         } catch (error) {
             logger.error(`Error in login:`, error);
@@ -69,9 +66,10 @@ class AdminController {
         let { mobile, email, password:  passwordHash } = body;
         try {
             logger.info('Register user controller');
-            const userData: any = await AdminService.getUserByMobileEmail(mobile, email);
+            const response: any = await AdminService.getUserByMobileEmail(mobile, email);
+            const userData = JSON.parse(JSON.stringify(response, null, 2));
             
-            if (userData && userData.rows.length === 0 && userData.rowCount === 0) {
+            if (userData !== 'null') {
                 logger.info('If mobile and email already not exists');
                 let password = Math.random().toString(36).slice(2);
                 if (passwordHash && passwordHash != null && passwordHash != "") {
@@ -81,19 +79,20 @@ class AdminController {
                 const hash = helper.generateSaltValue(password);
                 body.password = hash;
                 const result: any = await AdminService.insertNewUser(body);
-                if (result.rowCount === 1) {
-                    return res.json(Template.successMessage(SuccessMessage.PASSWORD_UPDATED));
+                const insertedData = JSON.stringify(result, null, 2);
+                if (insertedData && insertedData !== 'null') {
+                    return res.json(Template.successMessage(SuccessMessage.USER_INSERTED));
                 } else {
                     return res.status(400).json(Template.errorMessage(ErrorMessage.REGISTER_ERROR_INSERT));
                 }
             }
             else {
                 logger.info('mobile and email already exists');
-                return res.status(404).json(Template.userdoesNotExist('ErrorMessage.NOT_FOUND_BY_ID'));
+                return res.status(404).json(Template.userAlreadyExist());
             }
         } catch (error) {
             logger.error(`Error in login:`, error);
-            return res.status(500).json(Template.error(ErrorMessage.TECHNICAL_ERROR, ErrorMessage.LOGIN_ERROR));
+            return res.status(500).json(Template.error(ErrorMessage.TECHNICAL_ERROR, ErrorMessage.INSERT_ERROR));
         }
     }
 
@@ -103,18 +102,18 @@ class AdminController {
             const { limit, offset } = req.body;
             // const { role } = req.user;
             const role = 'USER';
-            let userList = await AdminService.getUserList(role, limit, offset);
-            let userCount = await AdminService.getUserListCount(role);
-            if (userList && userList.rows.length > 0 && userList.rowCount !== 0) {
-                logger.info('If success getUserList', userList && userList.rowCount);
-                let modifiedList = userList.rows.map(item => {
+            let response = await AdminService.getUserList(role, limit, offset);
+            const userList: any = JSON.parse(JSON.stringify(response, null, 2));
+            const [results] = await AdminService.getUserListCount(role);
+            if (userList && userList.length > 0 && results && results.length > 0) {
+                logger.info('If success getUserList', userList);
+                let modifiedList = userList.map(item => {
                     item.password = '';
                     return item;
                 })
-                return res.json(Template.success({ rowCount: userList.rowCount, 
-                    rows: modifiedList, totalCount: userCount.rows[0].count }, 'SuccessMessage.USER_LIST'));
+                return res.json(Template.success({ rows: modifiedList, totalCount: results[0]['COUNT(id)'] }, SuccessMessage.USER_LIST));
             }
-            return res.json(Template.errorMessage('ErrorMessage._LIST_ERROR'));
+            return res.json(Template.errorMessage(ErrorMessage.USER_LIST_ERROR));
 
         } catch (error) {
             logger.error(`error getUserList ${error}`);
@@ -127,13 +126,12 @@ class AdminController {
         try {
             logger.info('function updateUserDetail');
             const { body } = req;
-            console.log("🚀 ~ file: AdminController.ts:130 ~ AdminController ~ updateUserDetail ~ body", body)
-            let userData = await AdminService.updateUserDetail(body);
-            if (userData) {
-                logger.info('If success getuserData', userData && userData.rowCount);
-                return res.json(Template.success({ rows: userData.rows }, 'SuccessMessage.USER_LIST'));
+            const [results] = await AdminService.updateUserDetail(body);
+            if (results && results.affectedRows && results.changedRows) {
+                logger.info('If success updateUserDetail', results);
+                return res.json(Template.success({ rows: results }, SuccessMessage.USER_DETAIL_UPDATED));
             }
-            return res.json(Template.errorMessage('ErrorMessage._LIST_ERROR'));
+            return res.json(Template.errorMessage(ErrorMessage.USER_DETAIL_UPDATE_ERROR));
 
         } catch (error) {
             logger.error(`error getUserList ${error}`);

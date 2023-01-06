@@ -4,7 +4,6 @@ const validator = require('express-joi-validation').createValidator({})
 import expressJoi from "../lib/requestValidator";
 import AdminController from "../controller/AdminController";
 import adminMiddleware from '../middleware/adminMiddleware';
-import AuthController from "../controller/AuthController";
 
 export class AdminRouter {
     router: Router;

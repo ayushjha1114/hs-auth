@@ -40,9 +40,5 @@ configuration.url = {
   FE: process.env.FE,
   API: process.env.API,
 }
-configuration.admin = {
-  cognitoClientId: process.env.COGNITO_CLIENT_ID,
-  cognitoIdpName: process.env.COGNITO_IDP_NAME
-}
 
 export default configuration;

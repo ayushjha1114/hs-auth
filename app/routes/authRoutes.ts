@@ -1,7 +1,7 @@
 import express from "express";
 const jwt = require("jsonwebtoken");
 
-import AuthController from "../controller/AuthController";
+// import AuthController from "../controller/AuthController";
 
 import expressJoiValidator from "express-joi-validator";
 import expressJoi from "../lib/requestValidator";
@@ -28,7 +28,7 @@ export class AuthRouter {
    * endpoints.
    */
   init() {
-    this.router.post("/login", /* expressJoiValidator(expressJoi.loginUser), */ AuthController.validateUser);
+    // this.router.post("/login", /* expressJoiValidator(expressJoi.loginUser), */ AuthController.validateUser);
   }
 }
 
