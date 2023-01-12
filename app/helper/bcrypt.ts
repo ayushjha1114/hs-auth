@@ -11,7 +11,6 @@ const helper = {
     return hash;
   },
   comparePassword(userPassword, password ) {
-    console.log("🚀 ~ file: bcrypt.ts:14 ~ comparePassword ~ userPassword, password", userPassword, password)
     if (!userPassword.length ||  !( password && password.length > 0) ) {
       return false;
     }

@@ -18,6 +18,7 @@ export const ErrorMessage = {
     'LOGIN_ERROR': 'There may be error occurred while login',
     'INSERT_ERROR': 'There may be error occurred while insertion',
     'USER_LIST_ERROR': 'There may be error occurred while fetching user list',
+    'USER_BY_ID_ERROR': 'There may be error occurred while fetching user',
     'USER_DETAIL_UPDATE_ERROR': 'There may be error occurred while updating user details',
     'USER_INACTIVE': 'User profile is disabled, please contact admin',
     'INVALID_CREDS': 'Mobile number/password is incorrect'

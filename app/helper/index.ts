@@ -1,10 +1,6 @@
 import CryptoJS from 'crypto-js';
 const secretKey = '10'
-const commenHelper = {
-
-    otp() {
-        return Math.floor(100000 + Math.random() * 900000);
-    },
+const commonHelper = {
     encrypt(data) {
         return CryptoJS.AES.encrypt(JSON.stringify(data), secretKey).toString();
     },
@@ -12,31 +8,14 @@ const commenHelper = {
         const bytes = CryptoJS.AES.decrypt(data, secretKey);
         return bytes.toString(CryptoJS.enc.Utf8);
     },
-    feUrl(envirement) {
-        return process.env.FE_URL
-    },
-    modifyMobileNumber(mobileNumber) {
-        if (!mobileNumber) return null;
-        mobileNumber = mobileNumber.toString();
-        if (mobileNumber.length < 10) return mobileNumber;
-        return ('91' + mobileNumber.slice(-10));
-    },
-    beUrl(envirement) {
-        return process.env.API_BASE_PATH
-    },
-    createUUID() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    },
-    changeDateTimeInIST(time) {
-        let dateUTC = new Date(time).getTime();
-        let dateIST = new Date(dateUTC);
-        //date shifting for IST timezone (+5 hours and 30 minutes)
-        dateIST.setHours(dateIST.getHours() + 5);
-        dateIST.setMinutes(dateIST.getMinutes() + 30);
-        return dateIST;
+    createUniqueTicketNumber(lastTicket) {
+        if ((lastTicket === 'null') || (Object.keys(lastTicket).length === 0)) {
+            return 'DGST-00000001';
+        } else  {
+            let id = JSON.parse(lastTicket).ticket_number.split('-')[1];
+            const finalNumber = String(Number(id) + 1).padStart(8, '0');
+            return 'DGST-' + finalNumber;
+        }
     },
     isCircular(data) {
         try {
@@ -56,6 +35,6 @@ const commenHelper = {
     }
 };
 
-export default commenHelper;
+export default commonHelper;
 
 

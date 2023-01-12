@@ -1,6 +1,6 @@
 # Auth Application #
 ```
-A backend micro-service in NodeJS and Express web framework to provide REST APIs.
+A backend service in NodeJS and Express web framework to provide REST APIs.
 
 ```
 
@@ -17,12 +17,11 @@ npm start
 ```
 Add following variables in .env file:
 
-DATABASE_URL="postgres://******:******@******:****/******"
-PGSQL_HOST='******'
-PGSQL_DATABASE_NAME='******'
-PGSQL_USERNAME='******'
-PGSQL_PASSWORD='******'
-PGSQL_PORT='****'
+MYSQL_HOST='******'
+MYSQL_DATABASE_NAME='******'
+MYSQL_USERNAME='******'
+MYSQL_PASSWORD='******'
+MYSQL_PORT='****'
 AUTH_SERVICE_PORT=3001
 NODE_ENV='dev'
 ```

@@ -56,13 +56,6 @@ const data: any = {
       description: 'user already registered in System'
     });
   },
-  mobiledoesNotExist() {
-    return this.general({
-      success: false,
-      message: 'Mobile number in our record is not correct, please connect with your TSE',
-      description: 'Mobile Number not registered for the provided Distributor ID'
-    });
-  },
   userdoesNotExist(err) {
     return this.general({
       success: false,

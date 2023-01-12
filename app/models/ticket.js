@@ -3,93 +3,81 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class user_profile extends Model {
+  class ticket extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      console.log("🚀 ~ file: user_profile.js:13 ~ user_profile ~ associate ~ models", models)
       // define association here
     }
   }
-  user_profile.init({
-    first_name: {
+  ticket.init({
+    ticket_number: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    middle_name: {
+    status: {
       type: DataTypes.STRING,
-      defaultValue: null,
+      allowNull: false,
+      defaultValue: 'Open'
     },
-    last_name: {
+    status_color: {
       type: DataTypes.STRING,
-      defaultValue: null,
+      allowNull: false,
+      defaultValue: 'green'
     },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    mobile: {
-      type: DataTypes.STRING(20),
-      allowNull: false
-    },
-    password: {
+    customer: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    date_of_birth: {
+    serial_number: {
       type: DataTypes.STRING,
-      defaultValue: null,
     },
-    gender: {
+    model_number: {
       type: DataTypes.STRING,
-      defaultValue: null,
     },
-    img_url: {
+    description: {
       type: DataTypes.STRING,
-      defaultValue: null,
     },
-    role: {
-      type: DataTypes.ENUM('ADMIN', 'ENGINEER', 'AMC', 'USER'),
+    remark: {
+      type: DataTypes.STRING,
+    },
+    engineer: {
+      type: DataTypes.STRING,
       allowNull: false
     },
-    aadhaar_number: {
+    date: {
       type: DataTypes.STRING,
-      defaultValue: null,
+      allowNull: false
     },
-    current_address: {
+    address: {
       type: DataTypes.STRING,
-      defaultValue: null,
+      allowNull: false
     },
-    current_state: {
+    parent_service: {
       type: DataTypes.STRING,
-      defaultValue: null,
+      allowNull: false
     },
-    current_city: {
+    service_type: {
       type: DataTypes.STRING,
-      defaultValue: null,
+      allowNull: false
     },
-    current_pincode: {
+    service_provided: {
       type: DataTypes.STRING,
-      defaultValue: null,
+      allowNull: false
     },
-    permanent_address: {
+    brand: {
       type: DataTypes.STRING,
-      defaultValue: null,
+      allowNull: false
     },
-    permanent_state: {
+    priority: {
       type: DataTypes.STRING,
-      defaultValue: null,
+      defaultValue: 'LOW'
     },
-    permanent_city: {
+    image: {
       type: DataTypes.STRING,
-      defaultValue: null,
-    },
-    permanent_pincode: {
-      type: DataTypes.STRING,
-      defaultValue: null,
     },
     isDeleted: {
       type: DataTypes.BOOLEAN,
@@ -101,7 +89,7 @@ module.exports = (sequelize, DataTypes) => {
     },
   }, {
     sequelize,
-    modelName: 'user_profile',
+    modelName: 'ticket',
   });
-  return user_profile;
+  return ticket;
 };
