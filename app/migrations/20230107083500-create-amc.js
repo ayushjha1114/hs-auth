@@ -11,7 +11,7 @@ module.exports = {
       },
       company_name: {
         type: Sequelize.STRING,
-        defaultValue: null,
+        allowNull: false
       },
       date_of_registration: {
         type: Sequelize.DATE,
@@ -27,7 +27,7 @@ module.exports = {
       },
       user_plan: {
         type: Sequelize.STRING,
-        allowNull: false
+        defaultValue: null,
       },
       device: {
         type: Sequelize.STRING,
@@ -43,11 +43,11 @@ module.exports = {
       },
       gst_number: {
         type: Sequelize.STRING,
-        allowNull: false
+        defaultValue: null,
       },
       pan_number: {
         type: Sequelize.STRING,
-        allowNull: false
+        defaultValue: null,
       },
       isDeleted: {
         type: Sequelize.BOOLEAN,

@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
   amc.init({
     company_name: {
       type: DataTypes.STRING,
-      defaultValue: null,
+      allowNull: false
     },
     date_of_registration: {
       type: DataTypes.DATE,
@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     user_plan: {
       type: DataTypes.STRING,
-      allowNull: false
+      defaultValue: null,
     },
     device: {
       type: DataTypes.STRING,
@@ -49,11 +49,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     gst_number: {
       type: DataTypes.STRING,
-      allowNull: false
+      defaultValue: null,
     },
     pan_number: {
       type: DataTypes.STRING,
-      allowNull: false
+      defaultValue: null,
     },
     isDeleted: {
       type: DataTypes.BOOLEAN,
@@ -65,6 +65,14 @@ module.exports = (sequelize, DataTypes) => {
     },
     user_profile_id: {
       type: DataTypes.INTEGER
+    },
+    director_email: {
+      type: DataTypes.STRING,
+      defaultValue: null,
+    },
+    admin_email: {
+      type: DataTypes.STRING,
+      defaultValue: null,
     },
   }, {
     sequelize,

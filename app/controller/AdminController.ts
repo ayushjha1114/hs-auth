@@ -81,6 +81,13 @@ class AdminController {
                 }
                 const hash = helper.generateSaltValue(password);
                 body.password = hash;
+
+                const response = await AdminService.getLastUser();
+                const lastUser = JSON.stringify(response, null, 2);
+                console.log("🚀 ~ file: AdminController.ts:87 ~ AdminController ~ registerUser ~ lastUser", lastUser)
+                console.log("🚀 ~ file: AdminController.ts:88 ~ AdminController ~ registerUser ~ body.userList.user_id ", body.userDetail)
+                body.userDetail.user_id = Helper.createUniqueUserNumber(lastUser);
+                console.log("🚀 ~ file: AdminController.ts:89 ~ AdminController ~ registerUser ~ Helper.createUniqueUserNumber(lastUser)", Helper.createUniqueUserNumber(lastUser))
                 const result: any = await AdminService.insertNewUser(body);
                 const insertedData = JSON.stringify(result, null, 2);
                 if (insertedData && insertedData !== 'null') {
@@ -102,19 +109,20 @@ class AdminController {
     static async getUserList(req: Request, res: Response) {
         try {
             logger.info('function getUserList ');
-            const { limit, offset } = req.body;
-            // const { role } = req.user;
-            const role = 'USER';
-            let response = await AdminService.getUserList(role, limit, offset);
-            const userList: any = JSON.parse(JSON.stringify(response, null, 2));
-            const [results] = await AdminService.getUserListCount(role);
+            const { limit = 10, offset = 0 }: any = req.query;
+            console.log("🚀 ~ file: AdminController.ts:113 ~ AdminController ~ getUserList ~ req.query", req.query)
+            let response = await AdminService.getUserList(limit, offset);
+            console.log("🚀 ~ file: AdminController.ts:109 ~ AdminController ~ getUserList ~ response", response)
+            const { userList, amcList } = response;
+            console.log("🚀 ~ file: AdminController.ts:111 ~ AdminController ~ getUserList ~ amcList", amcList)
+            const [results] = await AdminService.getUserListCount();
             if (userList && userList.length > 0 && results && results.length > 0) {
                 logger.info('If success getUserList', userList);
                 let modifiedList = userList.map(item => {
                     item.password = '';
                     return item;
                 })
-                return res.json(Template.success({ rows: modifiedList, totalCount: results[0]['COUNT(id)'] }, SuccessMessage.USER_LIST));
+                return res.json(Template.success({ rows: modifiedList, totalCount: results[0]['COUNT(id)'], amcList }, SuccessMessage.USER_LIST));
             }
             return res.json(Template.errorMessage(ErrorMessage.USER_LIST_ERROR));
 
@@ -186,11 +194,13 @@ class AdminController {
     static async getBrandList(req: Request, res: Response) {
         try {
             logger.info('function getBrandList ');
-            let response = await AdminService.getBrandList();
+            const { limit = 10, offset = 0 }: any = req.query;
+            console.log("🚀 ~ file: AdminController.ts:198 ~ AdminController ~ getBrandList ~ req.query;", req.query)
+            let response = await AdminService.getBrandList(limit, offset);
             console.log("🚀 ~ file: AdminController.ts:170 ~ AdminController ~ getBrandList ~ response", response)
             if (response && Object.keys(response).length > 0) {
                 logger.info('If success getBrandList', response);
-                return res.json(Template.success({ rows: response }, SuccessMessage.BRAND_LIST));
+                return res.json(Template.success({ rows: response.rows, totalCount: response.totalCount }, SuccessMessage.BRAND_LIST));
             }
             return res.json(Template.errorMessage(ErrorMessage.USER_BY_ID_ERROR));
 
@@ -308,7 +318,9 @@ class AdminController {
     static async getTicketList(req: Request, res: Response) {
         try {
             logger.info('function getTicketList ');
-            let response = await AdminService.getTicketList();
+            const { limit = 10, offset = 0 }: any = req.query;
+            console.log("🚀 ~ file: AdminController.ts:321 ~ AdminController ~ getTicketList ~ req.query", req.query)
+            let response = await AdminService.getTicketList(limit, offset);
             console.log("🚀 ~ file: AdminController.ts:170 ~ AdminController ~ getTicketList ~ response", response)
             if (response && Object.keys(response).length > 0) {
                 logger.info('If success getTicketList', response);

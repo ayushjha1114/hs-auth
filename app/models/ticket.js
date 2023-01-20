@@ -53,7 +53,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     address: {
-      type: DataTypes.STRING,
+      type: DataTypes.JSON,
       allowNull: false
     },
     parent_service: {
@@ -86,6 +86,10 @@ module.exports = (sequelize, DataTypes) => {
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+    },
+    customer_plan: {
+      type: DataTypes.STRING,
+      defaultValue: null
     },
   }, {
     sequelize,

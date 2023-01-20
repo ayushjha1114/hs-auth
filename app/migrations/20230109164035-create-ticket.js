@@ -48,7 +48,7 @@ module.exports = {
         allowNull: false
       },
       address: {
-        type: Sequelize.STRING,
+        type: Sequelize.JSON,
         allowNull: false
       },
       parent_service: {

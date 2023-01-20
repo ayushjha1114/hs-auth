@@ -11,10 +11,19 @@ const commonHelper = {
     createUniqueTicketNumber(lastTicket) {
         if ((lastTicket === 'null') || (Object.keys(lastTicket).length === 0)) {
             return 'DGST-00000001';
-        } else  {
+        } else {
             let id = JSON.parse(lastTicket).ticket_number.split('-')[1];
             const finalNumber = String(Number(id) + 1).padStart(8, '0');
             return 'DGST-' + finalNumber;
+        }
+    },
+    createUniqueUserNumber(lastUser) {
+        if ((lastUser === 'null') || (Object.keys(lastUser).length === 0)) {
+            return '#DGCID-000001';
+        } else {
+            let id = JSON.parse(lastUser).user_id.split('-')[1];
+            const finalNumber = String(Number(id) + 1).padStart(6, '0');
+            return '#DGCID-' + finalNumber;
         }
     },
     isCircular(data) {

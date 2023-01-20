@@ -37,14 +37,24 @@ export const AdminService = {
         return result;
     },
 
-    async getUserList(role: string, limit: number, offset: number) {
-        return await UserProfile.findAll();
+    async getUserList(limit: number, offset: number) {
+        const response = await UserProfile.findAll({ offset : Number(offset), limit: Number(limit) });
+        const userList: any = JSON.parse(JSON.stringify(response, null, 2));
+        const result = await AMC.findAll();
+        const amcList: any = JSON.parse(JSON.stringify(result, null, 2));
+        return { userList, amcList };
     },
 
-    async getUserListCount(role: string) {
+    async getUserListCount() {
         return await db.sequelize.query("SELECT COUNT(id) FROM user_profiles");
         //SELECT COUNT(U.id) FROM user_profiles AS U INNER JOIN amcs AS A ON A.user_profile_id = U.id;
 
+    },
+
+    async getLastUser() {
+        return await UserProfile.findOne({
+            order: [['id', 'DESC']],
+        });
     },
 
     async getUserById(id) {
@@ -86,12 +96,16 @@ export const AdminService = {
         return insertedBrandData;
     },
 
-    async getBrandList() {
-        const response = await Brand.findAll();
+    async getBrandList(limit: number, offset: number) {
+        let brandList: any = {};
+        const response = await Brand.findAll({ offset : Number(offset), limit: Number(limit) });
         console.log("🚀 ~ file: AdminService.ts:80 ~ getBrandList ~ response", response)
         const insertedBrandData: any = JSON.parse(JSON.stringify(response, null, 2));
+        const [results] = await db.sequelize.query("SELECT COUNT(id) FROM brands");
         console.log("🚀 ~ file: AdminService.ts:82 ~ getBrandList ~ insertedBrandData", insertedBrandData)
-        return insertedBrandData;
+        brandList.rows = insertedBrandData;
+        brandList.totalCount = results[0]['COUNT(id)'];
+        return brandList;
     },
 
     async updateBrand(data: any, id) {
@@ -141,13 +155,13 @@ export const AdminService = {
         return insertedTicketData;
     },
 
-    async getTicketList() {
+    async getTicketList(limit: number, offset: number) {
         let ticketList: any = {};
-        const response = await Ticket.findAll();
+        const response = await Ticket.findAll({ offset : Number(offset), limit: Number(limit) });
         console.log("🚀 ~ file: AdminService.ts:80 ~ getTicketList ~ response", response)
         const ticketData: any = JSON.parse(JSON.stringify(response, null, 2));
         const [results] = await db.sequelize.query("SELECT COUNT(id) FROM tickets");
-        const paymentResponse = await PaymentDetail.findAll();
+        const paymentResponse = await PaymentDetail.findAll({ offset : Number(offset), limit: Number(limit) });
         const paymentDetailList: any = JSON.parse(JSON.stringify(paymentResponse, null, 2));
         console.log("🚀 ~ file: AdminService.ts:152 ~ getTicketList ~ paymentDetailList", paymentDetailList)
         console.log("🚀 ~ file: AdminService.ts:109 ~ getTicketList ~ serviceCount", results[0]['COUNT(id)'])
@@ -167,7 +181,7 @@ export const AdminService = {
     async savePaymentDetail(data: any) {
         console.log("🚀 ~ file: AdminService.ts:167 ~ savePaymentDetail ~ data.ticket_id", data.ticket_id)
         const result = await Ticket.update(
-            { status: 'Closed' , status_color: 'red'},
+            { status: 'Closed', status_color: 'red' },
             { where: { id: data.ticket_id } }
         );
         console.log("🚀 ~ file: AdminService.ts:169 ~ savePaymentDetail ~ result", JSON.parse(JSON.stringify(result, null, 2)))
