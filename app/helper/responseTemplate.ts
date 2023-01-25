@@ -52,8 +52,8 @@ const data: any = {
   userAlreadyExist(err) {
     return this.general({
       success: false,
-      message: 'user already registered in System',
-      description: 'user already registered in System'
+      message: 'User already registered in System',
+      description: 'User already registered in System'
     });
   },
   userdoesNotExist(err) {

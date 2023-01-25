@@ -4,7 +4,7 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.addColumn(
-      'amcs', // table name
+      'user_profiles', // table name
       'director_email', // new field name
       {
         type: Sequelize.STRING,
@@ -12,8 +12,24 @@ module.exports = {
       },
     ),
     await queryInterface.addColumn(
-      'amcs',
+      'user_profiles',
       'admin_email',
+      {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+    ),
+    await queryInterface.addColumn(
+      'user_profiles',
+      'contact_person_name',
+      {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+    ),
+    await queryInterface.addColumn(
+      'user_profiles',
+      'contact_person_number',
       {
         type: Sequelize.STRING,
         allowNull: true,
@@ -35,21 +51,14 @@ module.exports = {
         allowNull: true,
       },
     )
-    // queryInterface.changeColumn(
-    //   'tickets', 
-    //   'address', 
-    //   {
-    //     type: Sequelize.JSON,
-    //     allowNull: false
-    //   }
-    // )
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.removeColumn('amcs', 'director_email'),
-    await queryInterface.removeColumn('amcs', 'admin_email'),
+    await queryInterface.removeColumn('user_profiles', 'director_email'),
+    await queryInterface.removeColumn('user_profiles', 'admin_email'),
+    await queryInterface.removeColumn('user_profiles', 'contact_person_name'),
+    await queryInterface.removeColumn('user_profiles', 'contact_person_number'),
     await queryInterface.removeColumn('user_profiles', 'user_id'),
     await queryInterface.removeColumn('tickets', 'customer_plan')
-    // await queryInterface.changeColumn('tickets', 'address')
   }
 };

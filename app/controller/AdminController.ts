@@ -65,10 +65,10 @@ class AdminController {
 
     static async registerUser(req, res) {
         const { body } = req;
-        let { mobile, email, password: passwordHash } = body.userDetail;
+        let { mobile, password: passwordHash } = body.userDetail;
         try {
             logger.info('Register user controller');
-            const response: any = await AdminService.getUserByMobileEmail(mobile, email);
+            const response: any = await AdminService.getUserByMobileEmail(mobile);
             const userData = /* JSON.parse( */JSON.stringify(response, null, 2);
             console.log("🚀 ~ file: AdminController.ts:71 ~ AdminController ~ registerUser ~ userData >>>", userData, typeof userData)
 

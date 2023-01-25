@@ -85,6 +85,22 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue: null,
       },
+      company_name: {
+        type: Sequelize.STRING,
+        defaultValue: null,
+      },
+      date_of_registration: {
+        type: Sequelize.DATE,
+        defaultValue: null,
+      },
+      gst_number: {
+        type: Sequelize.STRING,
+        defaultValue: null,
+      },
+      pan_number: {
+        type: Sequelize.STRING,
+        defaultValue: null,
+      },
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,

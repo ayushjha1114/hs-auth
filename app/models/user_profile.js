@@ -91,6 +91,38 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       defaultValue: null,
     },
+    company_name: {
+      type: DataTypes.STRING,
+      defaultValue: null,
+    },
+    date_of_registration: {
+      type: DataTypes.DATE,
+      defaultValue: null,
+    },
+    gst_number: {
+      type: DataTypes.STRING,
+      defaultValue: null,
+    },
+    pan_number: {
+      type: DataTypes.STRING,
+      defaultValue: null,
+    },
+    director_email: {
+      type: DataTypes.STRING,
+      defaultValue: null,
+    },
+    admin_email: {
+      type: DataTypes.STRING,
+      defaultValue: null,
+    },
+    contact_person_name: {
+      type: DataTypes.STRING,
+      defaultValue: null,
+    },
+    contact_person_number: {
+      type: DataTypes.STRING(20),
+      defaultValue: null,
+    },
     isDeleted: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,

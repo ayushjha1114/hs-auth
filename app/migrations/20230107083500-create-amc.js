@@ -9,14 +9,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      company_name: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      date_of_registration: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
       plan_activation_date: {
         type: Sequelize.DATE,
         allowNull: false
@@ -38,14 +30,6 @@ module.exports = {
         defaultValue: null,
       },
       served_place: {
-        type: Sequelize.STRING,
-        defaultValue: null,
-      },
-      gst_number: {
-        type: Sequelize.STRING,
-        defaultValue: null,
-      },
-      pan_number: {
         type: Sequelize.STRING,
         defaultValue: null,
       },

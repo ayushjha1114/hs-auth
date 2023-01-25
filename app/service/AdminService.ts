@@ -13,8 +13,8 @@ export const AdminService = {
         return await UserProfile.findOne({ where: { mobile } });
     },
 
-    async getUserByMobileEmail(mobile: string, email: string) {
-        return await UserProfile.findOne({ where: { email, mobile } });
+    async getUserByMobileEmail(mobile: string) {
+        return await UserProfile.findOne({ where: { mobile } });
     },
 
     async insertNewUser(data: any) {
