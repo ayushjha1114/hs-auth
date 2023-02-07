@@ -65,7 +65,7 @@ class AdminController {
 
     static async registerUser(req, res) {
         const { body } = req;
-        let { mobile, password: passwordHash } = body.userDetail;
+        let { mobile, password: passwordHash } = body;
         try {
             logger.info('Register user controller');
             const response: any = await AdminService.getUserByMobileEmail(mobile);
@@ -86,7 +86,7 @@ class AdminController {
                 const lastUser = JSON.stringify(response, null, 2);
                 console.log("🚀 ~ file: AdminController.ts:87 ~ AdminController ~ registerUser ~ lastUser", lastUser)
                 console.log("🚀 ~ file: AdminController.ts:88 ~ AdminController ~ registerUser ~ body.userList.user_id ", body.userDetail)
-                body.userDetail.user_id = Helper.createUniqueUserNumber(lastUser);
+                body.user_id = Helper.createUniqueUserNumber(lastUser);
                 console.log("🚀 ~ file: AdminController.ts:89 ~ AdminController ~ registerUser ~ Helper.createUniqueUserNumber(lastUser)", Helper.createUniqueUserNumber(lastUser))
                 const result: any = await AdminService.insertNewUser(body);
                 const insertedData = JSON.stringify(result, null, 2);
@@ -137,16 +137,10 @@ class AdminController {
         try {
             logger.info('function updateUserDetail');
             const { body } = req;
-            const [results] = await AdminService.updateUserDetail(body);
-            if (results && results.affectedRows && results.changedRows) {
-                logger.info('If success updateUserDetail', results);
-                return res.json(Template.success({ rows: results }, SuccessMessage.USER_DETAIL_UPDATED));
-            }
-            return res.json(Template.errorMessage(ErrorMessage.USER_DETAIL_UPDATE_ERROR));
-
+            await AdminService.updateUserDetail(body);
         } catch (error) {
             logger.error(`error getUserList ${error}`);
-            return res.json(Template.error());
+            return res.status(404).json(Template.error());
 
         }
     }
@@ -160,8 +154,8 @@ class AdminController {
             console.log("🚀 ~ file: AdminController.ts:152 ~ AdminController ~ getUserById ~ user", user)
             if (user && Object.keys(user).length > 0) {
                 logger.info('If success getUserById', user);
-                user.userDetail.password = '';
-                return res.json(Template.success({ rows: user }, SuccessMessage.USER_BY_ID));
+                user.password = '';
+                return res.json(Template.success({ userDetail: user }, SuccessMessage.USER_BY_ID));
             }
             return res.json(Template.errorMessage(ErrorMessage.USER_BY_ID_ERROR));
 

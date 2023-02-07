@@ -19,7 +19,7 @@ export const AdminService = {
 
     async insertNewUser(data: any) {
         let result: any = {};
-        const response = await UserProfile.create(data.userDetail);
+        const response = await UserProfile.create(data);
         console.log("🚀 ~ file: AdminService.ts:17 ~ insertNewUser ~ response", response)
         const insertedUserProfileData: any = JSON.parse(JSON.stringify(response, null, 2));
         result.userDetail = insertedUserProfileData;
@@ -28,7 +28,7 @@ export const AdminService = {
         const user_id = insertedUserProfileData.id;
         console.log("🚀 ~ file: AdminService.ts:22 ~ insertNewUser ~ user_id", user_id)
         console.log("🚀 ~ file: AdminService.ts:25 ~ insertNewUser ~ data.amcDetails", data.amcDetail)
-        if (data.userDetail.role === 'AMC') {
+        if (data.role === 'AMC') {
             const response = await AMC.create({ ...data.amcDetail, user_profile_id: user_id });
             const insertedAMCData: any = JSON.parse(JSON.stringify(response, null, 2));
             console.log("🚀 ~ file: AdminService.ts:23 ~ insertNewUser ~ response", insertedAMCData)
@@ -61,31 +61,36 @@ export const AdminService = {
         let result: any = {};
         const response = await UserProfile.findOne({ where: { id } })
         const userData: any = JSON.parse(JSON.stringify(response, null, 2));
-        result.userDetail = userData;
+        // result = userData;
         console.log("🚀 ~ file: AdminService.ts:49 ~ getUserById ~ insertedAMCData", userData)
         const amcResponse = await AMC.findOne({ where: { user_profile_id: userData.id } })
         const amcData: any = JSON.parse(JSON.stringify(amcResponse, null, 2));
         console.log("🚀 ~ file: AdminService.ts:53 ~ getUserById ~ amcData", amcData)
-        result.amcDetail = amcData;
-        return result;
+        userData.amcDetail = amcData;
+        return userData;
     },
 
     async updateUserDetail(data: any) {
-        let updateStatement = '';
-        const dataKeys = Object.keys(data);
-        let count = 0;
-        let sqlStatement = `UPDATE user_profiles SET `;
-        Object.values(data).map(item => {
-            if (dataKeys[count] !== 'mobile') {
-                updateStatement += ` ${dataKeys[count]} = '${item}',`;
-            }
-            count++;
+        delete data.password;
+        delete data.createdAt;
+        delete data.updatedAt;
+
+        console.log(data);
+        const result = await UserProfile.update(data, {
+            where: { id: data.id }
         });
-        sqlStatement += updateStatement.replace(/,\s*$/, "");
-        const whereStatement = ` WHERE mobile = '${data.mobile}'`;
-        sqlStatement += whereStatement;
-        console.log("🚀 ~ file: AdminModel.ts:118 ~ updateUserDetail ~ sqlStatement", sqlStatement)
-        return await db.sequelize.query(sqlStatement);
+        if(!result[0]) {
+            throw new Error('User Not updated');
+        }
+        if(data.amcDetail) {
+            const amcResult = await AMC.update(data.amcDetail,{
+                where: {user_profile_id : data.id}
+            })
+            if(!amcResult[0]) {
+                throw new Error('User amc Not updated');
+            }
+        }
+       
     },
 
     async createBrand(data: any) {
