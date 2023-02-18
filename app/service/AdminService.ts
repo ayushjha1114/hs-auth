@@ -70,6 +70,15 @@ export const AdminService = {
         return userData;
     },
 
+    async getServiceById(id) {
+        let result: any = {};
+        const response = await Service.findOne({ where: { id } })
+        const serviceDetail: any = JSON.parse(JSON.stringify(response, null, 2));
+        // result = userData;
+        console.log("🚀 ~ file: AdminService.ts:78 ~ getserviceById ~ amcData", serviceDetail)
+        return serviceDetail;
+    },
+
     async updateUserDetail(data: any) {
         delete data.password;
         delete data.createdAt;

@@ -8,6 +8,7 @@ export const SuccessMessage = {
     'LOGOUT': 'User logged out successfully',
     'USER_LIST': 'Successfully fetched user list',
     'USER_BY_ID': 'Successfully fetched user',
+    'SERVICE_BY_ID': 'Successfully fetched service',
     'USER_DETAIL_UPDATED': 'Successfully updated user details',
     'BRAND_LIST': 'Successfully fetched brand list',
     'SERVICE_LIST': 'Successfully fetched service list',

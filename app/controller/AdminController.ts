@@ -166,6 +166,26 @@ class AdminController {
         }
     }
 
+    static async getServiceById(req: Request, res: Response) {
+        try {
+            logger.info('function getServiceById ');
+            const { id } = req.params;
+            let response = await AdminService.getServiceById(id);
+            const serviceDetail: any = JSON.parse(JSON.stringify(response, null, 2));
+            console.log("🚀 ~ file: AdminController.ts:152 ~ AdminController ~ getServiceById ~ service", serviceDetail)
+            if (serviceDetail && Object.keys(serviceDetail).length > 0) {
+                logger.info('If success getServiceById', serviceDetail);
+                return res.json(Template.success({serviceDetail }, SuccessMessage.SERVICE_BY_ID));
+            }
+            return res.json(Template.errorMessage(ErrorMessage.TECHNICAL_ERROR));
+
+        } catch (error) {
+            logger.error(`error getUserById ${error}`);
+            return res.json(Template.error());
+
+        }
+    }
+
     static async createBrand(req: Request, res: Response) {
         try {
             logger.info('function createBrand ');
