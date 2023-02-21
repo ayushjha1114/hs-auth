@@ -34,6 +34,7 @@ export class AdminRouter {
         this.router.get("/service/:id", adminMiddleware.validateToken,/*  expressJoiValidator(expressJoi.xxx), */ AdminController.getServiceById);
         this.router.post("/ticket", adminMiddleware.validateToken,/*  expressJoiValidator(expressJoi.xxx), */ AdminController.createTicket);
         this.router.patch("/ticket/:id", adminMiddleware.validateToken,/*  expressJoiValidator(expressJoi.xxx), */ AdminController.updateTicket);
+        this.router.get("/ticket/:id", adminMiddleware.validateToken,/*  expressJoiValidator(expressJoi.xxx), */ AdminController.getTicketById);
         this.router.get("/ticket-list", adminMiddleware.validateToken,/*  expressJoiValidator(expressJoi.xxx), */ AdminController.getTicketList);
         this.router.post("/payment-detail", adminMiddleware.validateToken,/*  expressJoiValidator(expressJoi.xxx), */ AdminController.savePaymentDetail);
         this.router.get("/payment-detail-list", adminMiddleware.validateToken,/*  expressJoiValidator(expressJoi.xxx), */ AdminController.getAllPaymentDetail);

@@ -431,6 +431,26 @@ class AdminController {
         }
     }
 
+    static async getTicketById(req: Request, res: Response) {
+        try {
+            logger.info('function getTicketById ');
+            const { id } = req.params;
+            let response = await AdminService.getTicketById(id);
+            const ticket: any = JSON.parse(JSON.stringify(response, null, 2));
+            console.log("🚀 ~ file: AdminController.ts:152 ~ AdminController ~ getServiceById ~ service", ticket)
+            if (ticket && Object.keys(ticket).length > 0) {
+                logger.info('If success getServiceById', ticket);
+                return res.json(Template.success({ticket }, SuccessMessage.SERVICE_BY_ID));
+            }
+            return res.json(Template.errorMessage(ErrorMessage.TECHNICAL_ERROR));
+
+        } catch (error) {
+            logger.error(`error getTicketById ${error}`);
+            return res.json(Template.error());
+
+        }
+    }
+
 }
 
 export default AdminController;

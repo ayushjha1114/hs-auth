@@ -79,6 +79,15 @@ export const AdminService = {
         return serviceDetail;
     },
 
+    async getTicketById(id) {
+        let result: any = {};
+        const response = await Ticket.findOne({ where: { id } })
+        const ticket: any = JSON.parse(JSON.stringify(response, null, 2));
+        // result = userData;
+        console.log("🚀 ~ file: AdminService.ts:78 ~ getTicketById ~ ticket", ticket)
+        return ticket;
+    },
+
     async updateUserDetail(data: any) {
         delete data.password;
         delete data.createdAt;
