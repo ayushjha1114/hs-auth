@@ -109,9 +109,10 @@ class AdminController {
     static async getUserList(req: Request, res: Response) {
         try {
             logger.info('function getUserList ');
-            const { limit = 10, offset = 0 }: any = req.query;
+            const { limit = 10, offset = 0, search = '', isTypeCustomer }: any = req.query;
             console.log("🚀 ~ file: AdminController.ts:113 ~ AdminController ~ getUserList ~ req.query", req.query)
-            let response = await AdminService.getUserList(limit, offset);
+            const type = isTypeCustomer ? JSON.parse(isTypeCustomer) : true
+            let response = await AdminService.getUserList(limit, offset, search, type);
             console.log("🚀 ~ file: AdminController.ts:109 ~ AdminController ~ getUserList ~ response", response)
             const { userList, amcList } = response;
             console.log("🚀 ~ file: AdminController.ts:111 ~ AdminController ~ getUserList ~ amcList", amcList)

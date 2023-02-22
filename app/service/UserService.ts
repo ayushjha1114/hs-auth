@@ -5,7 +5,7 @@ const AMC = db.amc;
 
 export const UserService = {
 
-    async getAllUserBySearchTerm(searchTerm : string,userType: any){
+    async getAllUserBySearchTerm(searchTerm : string, userType: any){
         let searchTermForQuery = '%'+searchTerm.toLocaleLowerCase()+'%';
 
         const response = await UserProfile.findAll({

@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const { Op } = require("sequelize");
 import db from "../models";
 const UserProfile = db.user_profile;
 const AMC = db.amc;
@@ -37,12 +38,33 @@ export const AdminService = {
         return result;
     },
 
-    async getUserList(limit: number, offset: number) {
-        const response = await UserProfile.findAll({ offset : Number(offset), limit: Number(limit) });
-        const userList: any = JSON.parse(JSON.stringify(response, null, 2));
-        const result = await AMC.findAll();
-        const amcList: any = JSON.parse(JSON.stringify(result, null, 2));
-        return { userList, amcList };
+    async getUserList(limit: number, offset: number, search: string, isTypeCustomer: boolean) {
+        if (search && search !== 'undefined') {
+            let searchTermForQuery = '%'+search.toLocaleLowerCase()+'%';
+            const role = isTypeCustomer ? ['AMC', 'USER']: ['ENGINEER']
+            console.log("🚀 ~ file: AdminService.ts:43 ~ getUserList ~ search:", search, isTypeCustomer, {typ: isTypeCustomer} , role)
+
+            const response = await UserProfile.findAll({
+                include: { model: AMC },
+                where: {
+                    role: role,
+                    [Op.or]: [
+                        { first_name: {[Op.like]: searchTermForQuery } },
+                        { middle_name: {[Op.like]: searchTermForQuery } },
+                        { last_name: {[Op.like]: searchTermForQuery } }
+                    ]
+                }
+              });
+              const userDetail: any = JSON.parse(JSON.stringify(response, null, 2));
+              return { userList: userDetail, amcList: [] };
+              console.log("🚀 ~ file: AdminService.ts:56 ~ getUserList ~ userDetail:", userDetail)
+        } else {
+            const response = await UserProfile.findAll({ offset : Number(offset), limit: Number(limit) });
+            const userList: any = JSON.parse(JSON.stringify(response, null, 2));
+            const result = await AMC.findAll();
+            const amcList: any = JSON.parse(JSON.stringify(result, null, 2));
+            return { userList, amcList };
+        }
     },
 
     async getUserListCount() {
