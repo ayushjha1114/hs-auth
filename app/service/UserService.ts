@@ -5,21 +5,23 @@ const AMC = db.amc;
 
 export const UserService = {
 
-    async getAllUserBySearchTerm(searchTerm : string, userType: any){
-        let searchTermForQuery = '%'+searchTerm.toLocaleLowerCase()+'%';
+    async getAllUserBySearchTerm(searchTerm : string, isTypeCustomer: any){
+      let searchTermForQuery = '%'+searchTerm.toLocaleLowerCase()+'%';
+      const role = isTypeCustomer ? ['AMC', 'USER']: ['ENGINEER']
+      console.log("🚀 ~ file: AdminService.ts:43 ~ getAllUserBySearchTerm ~ search:", searchTerm, isTypeCustomer, {typ: isTypeCustomer} , role)
 
-        const response = await UserProfile.findAll({
-            include: { model: AMC, as: 'amcDetail' },
-            where: {
+      const response = await UserProfile.findAll({
+          include: { model: AMC },
+          where: {
+              role: role,
               [Op.or]: [
-                { first_name: {[Op.like]: searchTermForQuery } },
-                { middle_name: {[Op.like]: searchTermForQuery } },
-                { last_name: {[Op.like]: searchTermForQuery } }
+                  { first_name: {[Op.like]: searchTermForQuery } },
+                  { middle_name: {[Op.like]: searchTermForQuery } },
+                  { last_name: {[Op.like]: searchTermForQuery } }
               ]
-            }
-          });
-          const userDetail: any = JSON.parse(JSON.stringify(response, null, 2));
-          //return [{Id:userID,name: firstname+middlename+lastName,isAmc:Boolean}]
-
+          }
+        });
+        const userDetail: any = JSON.parse(JSON.stringify(response, null, 2));
+        return userDetail;
     }
 }

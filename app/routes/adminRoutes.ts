@@ -39,6 +39,7 @@ export class AdminRouter {
         this.router.post("/payment-detail", adminMiddleware.validateToken,/*  expressJoiValidator(expressJoi.xxx), */ AdminController.savePaymentDetail);
         this.router.get("/payment-detail-list", adminMiddleware.validateToken,/*  expressJoiValidator(expressJoi.xxx), */ AdminController.getAllPaymentDetail);
         this.router.patch("/payment-detail/:id", adminMiddleware.validateToken,/*  expressJoiValidator(expressJoi.xxx), */ AdminController.updatePaymentDetail);
+        this.router.post("/user-list-by-search", adminMiddleware.validateToken,/*  expressJoiValidator(expressJoi.xxx), */ AdminController.getUserListBySearch);
     }
 }
 

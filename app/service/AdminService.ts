@@ -38,33 +38,12 @@ export const AdminService = {
         return result;
     },
 
-    async getUserList(limit: number, offset: number, search: string, isTypeCustomer: boolean) {
-        if (search && search !== 'undefined') {
-            let searchTermForQuery = '%'+search.toLocaleLowerCase()+'%';
-            const role = isTypeCustomer ? ['AMC', 'USER']: ['ENGINEER']
-            console.log("🚀 ~ file: AdminService.ts:43 ~ getUserList ~ search:", search, isTypeCustomer, {typ: isTypeCustomer} , role)
-
-            const response = await UserProfile.findAll({
-                include: { model: AMC },
-                where: {
-                    role: role,
-                    [Op.or]: [
-                        { first_name: {[Op.like]: searchTermForQuery } },
-                        { middle_name: {[Op.like]: searchTermForQuery } },
-                        { last_name: {[Op.like]: searchTermForQuery } }
-                    ]
-                }
-              });
-              const userDetail: any = JSON.parse(JSON.stringify(response, null, 2));
-              return { userList: userDetail, amcList: [] };
-              console.log("🚀 ~ file: AdminService.ts:56 ~ getUserList ~ userDetail:", userDetail)
-        } else {
-            const response = await UserProfile.findAll({ offset : Number(offset), limit: Number(limit) });
-            const userList: any = JSON.parse(JSON.stringify(response, null, 2));
-            const result = await AMC.findAll();
-            const amcList: any = JSON.parse(JSON.stringify(result, null, 2));
-            return { userList, amcList };
-        }
+    async getUserList(limit: number, offset: number) {
+        const response = await UserProfile.findAll({ offset: Number(offset), limit: Number(limit) });
+        const userList: any = JSON.parse(JSON.stringify(response, null, 2));
+        const result = await AMC.findAll();
+        const amcList: any = JSON.parse(JSON.stringify(result, null, 2));
+        return { userList, amcList };
     },
 
     async getUserListCount() {
@@ -114,23 +93,42 @@ export const AdminService = {
         delete data.password;
         delete data.createdAt;
         delete data.updatedAt;
+        delete data.isDeleted;
+        delete data.isActive;
 
-        console.log(data);
-        const result = await UserProfile.update(data, {
-            where: { id: data.id }
-        });
-        if(!result[0]) {
-            throw new Error('User Not updated');
-        }
-        if(data.amcDetail) {
-            const amcResult = await AMC.update(data.amcDetail,{
-                where: {user_profile_id : data.id}
-            })
-            if(!amcResult[0]) {
-                throw new Error('User amc Not updated');
+        const amcData = data.amcDetail;
+        delete data.amcDetail;
+
+        let updateStatement = '';
+        const dataKeys = Object.keys(data);
+        let count = 0;
+        let sqlStatement = `UPDATE user_profiles SET `;
+        Object.values(data).map(item => {
+            if (dataKeys[count] !== 'mobile') {
+                updateStatement += ` ${dataKeys[count]} = '${item}',`;
             }
+            count++;
+        });
+        sqlStatement += updateStatement.replace(/,\s*$/, "");
+        const whereStatement = ` WHERE mobile = '${data.mobile}'`;
+        sqlStatement += whereStatement;
+        console.log("🚀 ~ file: AdminModel.ts:118 ~ updateUserDetail ~ sqlStatement", sqlStatement)
+        if (amcData) {
+            const amcResult = await AMC.update(amcData, {
+                where: { user_profile_id: data.id }
+            })
+            console.log("🚀 ~ file: AdminService.ts:118 ~ updateUserDetail ~ amcResult:", amcResult)
         }
-       
+        return await db.sequelize.query(sqlStatement);
+
+        // console.log(data);
+        // const result = await UserProfile.update(data, {
+        //     where: { id: data.id }
+        // });
+        // if (!result[0]) {
+        //     throw new Error('User Not updated');
+        // }
+
     },
 
     async createBrand(data: any) {
@@ -143,7 +141,7 @@ export const AdminService = {
 
     async getBrandList(limit: number, offset: number) {
         let brandList: any = {};
-        const response = await Brand.findAll({ offset : Number(offset), limit: Number(limit) });
+        const response = await Brand.findAll({ offset: Number(offset), limit: Number(limit) });
         console.log("🚀 ~ file: AdminService.ts:80 ~ getBrandList ~ response", response)
         const insertedBrandData: any = JSON.parse(JSON.stringify(response, null, 2));
         const [results] = await db.sequelize.query("SELECT COUNT(id) FROM brands");
@@ -202,11 +200,16 @@ export const AdminService = {
 
     async getTicketList(limit: number, offset: number) {
         let ticketList: any = {};
-        const response = await Ticket.findAll({ offset : Number(offset), limit: Number(limit) });
+        const response = await Ticket.findAll({
+            offset: Number(offset), limit: Number(limit), 
+            order: [
+                ['ticket_number', 'DESC'],
+            ]
+        });
         console.log("🚀 ~ file: AdminService.ts:80 ~ getTicketList ~ response", response)
         const ticketData: any = JSON.parse(JSON.stringify(response, null, 2));
         const [results] = await db.sequelize.query("SELECT COUNT(id) FROM tickets");
-        const paymentResponse = await PaymentDetail.findAll({ offset : Number(offset), limit: Number(limit) });
+        const paymentResponse = await PaymentDetail.findAll({ offset: Number(offset), limit: Number(limit) });
         const paymentDetailList: any = JSON.parse(JSON.stringify(paymentResponse, null, 2));
         console.log("🚀 ~ file: AdminService.ts:152 ~ getTicketList ~ paymentDetailList", paymentDetailList)
         console.log("🚀 ~ file: AdminService.ts:109 ~ getTicketList ~ serviceCount", results[0]['COUNT(id)'])

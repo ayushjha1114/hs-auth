@@ -6,6 +6,7 @@ import logger from '../lib/logger';
 import Template from "../helper/responseTemplate";
 import { SuccessMessage } from '../constant/successMessage';
 import { AdminService } from '../service/AdminService';
+import { UserService } from '../service/UserService';
 import { ErrorMessage } from '../constant/errorMessage';
 import { Request, Response } from 'express';
 import { EXPIRE_TIME } from '../constant';
@@ -109,10 +110,9 @@ class AdminController {
     static async getUserList(req: Request, res: Response) {
         try {
             logger.info('function getUserList ');
-            const { limit = 10, offset = 0, search = '', isTypeCustomer }: any = req.query;
+            const { limit = 10, offset = 0 }: any = req.query;
             console.log("🚀 ~ file: AdminController.ts:113 ~ AdminController ~ getUserList ~ req.query", req.query)
-            const type = isTypeCustomer ? JSON.parse(isTypeCustomer) : true
-            let response = await AdminService.getUserList(limit, offset, search, type);
+            let response = await AdminService.getUserList(limit, offset);
             console.log("🚀 ~ file: AdminController.ts:109 ~ AdminController ~ getUserList ~ response", response)
             const { userList, amcList } = response;
             console.log("🚀 ~ file: AdminController.ts:111 ~ AdminController ~ getUserList ~ amcList", amcList)
@@ -134,14 +134,55 @@ class AdminController {
         }
     }
 
+    static async getUserListBySearch(req: Request, res: Response) {
+        try {
+            logger.info('function getUserListBySearch ');
+            const { searchTerm = '', isTypeCustomer = true }: any = req.body;
+            console.log("🚀 ~ file: AdminController.ts:141 ~ AdminController ~ getUserListBySearch ~ req.body:", req.body)
+            let response = await UserService.getAllUserBySearchTerm(searchTerm, isTypeCustomer);
+            console.log("🚀 ~ file: AdminController.ts:143 ~ AdminController ~ getUserListBySearch ~ response:", response)
+            if (response && response.length > 0) {
+                logger.info('If success getUserListBySearch', response);
+                let modifiedList = response.map(item => {
+                    item.password = '';
+                    return item;
+                })
+                return res.json(Template.success({ rows: modifiedList }, SuccessMessage.USER_LIST));
+            }
+            return res.json(Template.errorMessage(ErrorMessage.USER_LIST_ERROR));
+
+        } catch (error) {
+            logger.error(`error getUserListBySearch ${error}`);
+            return res.json(Template.error());
+
+        }
+    }
+
     static async updateUserDetail(req: Request, res: Response) {
+        // try {
+        //     logger.info('function updateUserDetail');
+        //     const { body } = req;
+        //     await AdminService.updateUserDetail(body);
+        //     // return res.json(Template.success({ rows: modifiedList }, SuccessMessage.USER_LIST));
+        // } catch (error) {
+        //     logger.error(`error getUserList ${error}`);
+        //     return res.status(404).json(Template.error());
+
+        // }
         try {
             logger.info('function updateUserDetail');
             const { body } = req;
-            await AdminService.updateUserDetail(body);
+            const [results] = await AdminService.updateUserDetail(body);
+            console.log("🚀 ~ file: AdminController.ts:176 ~ AdminController ~ updateUserDetail ~ results:", results)
+            if (results && results.affectedRows && results.changedRows) {
+                logger.info('If success updateUserDetail', results);
+                return res.json(Template.success({ rows: results }, SuccessMessage.USER_DETAIL_UPDATED));
+            }
+            return res.json(Template.errorMessage(ErrorMessage.USER_DETAIL_UPDATE_ERROR));
+
         } catch (error) {
             logger.error(`error getUserList ${error}`);
-            return res.status(404).json(Template.error());
+            return res.json(Template.error());
 
         }
     }
@@ -359,7 +400,9 @@ class AdminController {
             console.log("🚀 ~ file: AdminController.ts:170 ~ AdminController ~ savePaymentDetail ~ response", response)
             if (response && Object.keys(response).length > 0) {
                 logger.info('If success savePaymentDetail', response);
-                return res.json(Template.success({ rows: response }, SuccessMessage.PAYMENT_DETAIL_SAVED));
+                let paymentList = await AdminService.getAllPaymentDetail();
+                const paymentData: any = JSON.parse(JSON.stringify(paymentList, null, 2));
+                return res.json(Template.success({ rows: paymentData }, SuccessMessage.PAYMENT_DETAIL_SAVED));
             }
             return res.json(Template.errorMessage(ErrorMessage.USER_BY_ID_ERROR));
 
@@ -399,8 +442,10 @@ class AdminController {
             let response = await AdminService.updatePaymentDetail(body, id);
             console.log("🚀 ~ file: AdminController.ts:170 ~ AdminController ~ updatePaymentDetail ~ response", response)
             if (response && Object.keys(response).length > 0) {
+                let paymentList = await AdminService.getAllPaymentDetail();
+                const paymentData: any = JSON.parse(JSON.stringify(paymentList, null, 2));
                 logger.info('If success updatePaymentDetail', response);
-                return res.json(Template.success({ rows: response }, SuccessMessage.PAYMENT_DETAIL_SAVED));
+                return res.json(Template.success({ rows: paymentData }, SuccessMessage.PAYMENT_DETAIL_SAVED));
             }
             return res.json(Template.errorMessage(ErrorMessage.USER_BY_ID_ERROR));
 
