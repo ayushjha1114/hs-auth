@@ -11,6 +11,7 @@ import { ErrorMessage } from '../constant/errorMessage';
 import { Request, Response } from 'express';
 import { EXPIRE_TIME } from '../constant';
 import Helper from '../helper';
+import { customerTicketCreationEmail, engineerTicketCreationEmail } from '../helper/email';
 
 class AdminController {
     static async validateAdmin(req, res) {
@@ -352,17 +353,38 @@ class AdminController {
             let { body } = req;
             const result = await AdminService.getLastTicket();
             const lastTicket = JSON.stringify(result, null, 2);
-            console.log("🚀 ~ file: AdminController.ts:289 ~ AdminController ~ createTicket ~ lastTicket", lastTicket)
             body.ticket_number = Helper.createUniqueTicketNumber(lastTicket);
             body.date = moment().format('DD-MM-YYYY');
             console.log("🚀 ~ file: AdminController.ts:287 ~ AdminController ~ createTicket ~ body", body)
             let response = await AdminService.createTicket(body);
-            console.log("🚀 ~ file: AdminController.ts:170 ~ AdminController ~ createTicket ~ response", response)
             if (response && Object.keys(response).length > 0) {
                 logger.info('If success createTicket', response);
+                let data = response;
+                console.log("🚀 ~ file: AdminController.ts:364 ~ AdminController ~ createTicket ~ body.customerId:", body.customerId)
+                const customerData: any = await AdminService.getUserById(body.customerId);
+                const userData = JSON.parse(JSON.stringify(customerData, null, 2));
+                data.userData = userData;
+                data.engineerEmail = body.engineerEmail;
+                console.log("🚀 ~ file: AdminController.ts:369 ~ data:", data)
+                const customerEmailResult = await customerTicketCreationEmail(data);
+                if (customerEmailResult.accepted.length === 0) {
+                    return res.json({
+                        success: false,
+                        message: 'Ticket created Successfully. Customer email failed to send'
+                      });
+                }
+                console.log("🚀 ~ file: AdminController.ts:370 ~ AdminController ~ createTicket ~ customerEmailResult:", customerEmailResult)
+                const engineerEmailResult = await engineerTicketCreationEmail(data);
+                console.log("🚀 ~ file: AdminController.ts:372 ~ AdminController ~ createTicket ~ engineerEmailResult:", engineerEmailResult)
+                if (engineerEmailResult.accepted.length === 0) {
+                    return res.json({
+                        success: false,
+                        message: 'Ticket created Successfully. Engineer email failed to send'
+                      });
+                }
                 return res.json(Template.success({ rows: response }, SuccessMessage.TICKET_CREATED));
             }
-            return res.json(Template.errorMessage(ErrorMessage.USER_BY_ID_ERROR));
+            return res.json(Template.errorMessage('Ticket is not created'));
 
         } catch (error) {
             logger.error(`error createTicket ${error}`);
@@ -375,11 +397,9 @@ class AdminController {
         try {
             logger.info('function getTicketList ');
             const { limit = 10, offset = 0 }: any = req.query;
-            console.log("🚀 ~ file: AdminController.ts:321 ~ AdminController ~ getTicketList ~ req.query", req.query)
             let response = await AdminService.getTicketList(limit, offset);
-            console.log("🚀 ~ file: AdminController.ts:170 ~ AdminController ~ getTicketList ~ response", response)
             if (response && Object.keys(response).length > 0) {
-                logger.info('If success getTicketList', response);
+                // logger.info('If success getTicketList', response);
                 return res.json(Template.success({ rows: response.rows, totalCount: response.totalCount, paymentDetailList: response.paymentDetailList }, SuccessMessage.TICKET_LIST));
             }
             return res.json(Template.errorMessage(ErrorMessage.USER_BY_ID_ERROR));
@@ -418,7 +438,7 @@ class AdminController {
             logger.info('function getAllPaymentDetail ');
             let response = await AdminService.getAllPaymentDetail();
             const paymentData: any = JSON.parse(JSON.stringify(response, null, 2));
-            console.log("🚀 ~ file: AdminController.ts:170 ~ AdminController ~ getAllPaymentDetail ~ paymentData", paymentData)
+            // console.log("🚀 ~ file: AdminController.ts:170 ~ AdminController ~ getAllPaymentDetail ~ paymentData", paymentData)
             if (paymentData && Object.keys(paymentData).length > 0) {
                 logger.info('If success getAllPaymentDetail', paymentData);
                 return res.json(Template.success({ rows: paymentData }, SuccessMessage.TICKET_LIST));

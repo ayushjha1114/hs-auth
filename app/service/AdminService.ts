@@ -63,10 +63,10 @@ export const AdminService = {
         const response = await UserProfile.findOne({ where: { id } })
         const userData: any = JSON.parse(JSON.stringify(response, null, 2));
         // result = userData;
-        console.log("🚀 ~ file: AdminService.ts:49 ~ getUserById ~ insertedAMCData", userData)
+        // console.log("🚀 ~ file: AdminService.ts:49 ~ getUserById ~ insertedAMCData", userData)
         const amcResponse = await AMC.findOne({ where: { user_profile_id: userData.id } })
         const amcData: any = JSON.parse(JSON.stringify(amcResponse, null, 2));
-        console.log("🚀 ~ file: AdminService.ts:53 ~ getUserById ~ amcData", amcData)
+        // console.log("🚀 ~ file: AdminService.ts:53 ~ getUserById ~ amcData", amcData)
         userData.amcDetail = amcData;
         return userData;
     },
@@ -192,9 +192,7 @@ export const AdminService = {
 
     async createTicket(data: any) {
         const response = await Ticket.create(data);
-        console.log("🚀 ~ file: AdminService.ts:80 ~ createTicket ~ response", response)
         const insertedTicketData: any = JSON.parse(JSON.stringify(response, null, 2));
-        console.log("🚀 ~ file: AdminService.ts:82 ~ createTicket ~ insertedTicketData", insertedTicketData)
         return insertedTicketData;
     },
 
@@ -206,14 +204,10 @@ export const AdminService = {
                 ['ticket_number', 'DESC'],
             ]
         });
-        console.log("🚀 ~ file: AdminService.ts:80 ~ getTicketList ~ response", response)
         const ticketData: any = JSON.parse(JSON.stringify(response, null, 2));
         const [results] = await db.sequelize.query("SELECT COUNT(id) FROM tickets");
         const paymentResponse = await PaymentDetail.findAll({ offset: Number(offset), limit: Number(limit) });
         const paymentDetailList: any = JSON.parse(JSON.stringify(paymentResponse, null, 2));
-        console.log("🚀 ~ file: AdminService.ts:152 ~ getTicketList ~ paymentDetailList", paymentDetailList)
-        console.log("🚀 ~ file: AdminService.ts:109 ~ getTicketList ~ serviceCount", results[0]['COUNT(id)'])
-        console.log("🚀 ~ file: AdminService.ts:82 ~ getTicketList ~ ticketData", ticketData)
         ticketList.rows = ticketData;
         ticketList.totalCount = results[0]['COUNT(id)'];
         ticketList.paymentDetailList = paymentDetailList;
