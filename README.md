@@ -1,4 +1,5 @@
 # Auth Application #
+NODE VERSION - 19.9.0
 ```
 A backend micro-service in NodeJS and Express web framework to provide REST APIs.
 
