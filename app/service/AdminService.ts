@@ -21,18 +21,18 @@ export const AdminService = {
     async insertNewUser(data: any) {
         let result: any = {};
         const response = await UserProfile.create(data);
-        console.log("🚀 ~ file: AdminService.ts:17 ~ insertNewUser ~ response", response)
+        
         const insertedUserProfileData: any = JSON.parse(JSON.stringify(response, null, 2));
         result.userDetail = insertedUserProfileData;
 
-        console.log("🚀 ~ file: AdminService.ts:20 ~ insertNewUser ~ insertedUserProfileData", insertedUserProfileData)
+        
         const user_id = insertedUserProfileData.id;
-        console.log("🚀 ~ file: AdminService.ts:22 ~ insertNewUser ~ user_id", user_id)
-        console.log("🚀 ~ file: AdminService.ts:25 ~ insertNewUser ~ data.amcDetails", data.amcDetail)
+        
+        
         if (data.role === 'AMC') {
             const response = await AMC.create({ ...data.amcDetail, user_profile_id: user_id });
             const insertedAMCData: any = JSON.parse(JSON.stringify(response, null, 2));
-            console.log("🚀 ~ file: AdminService.ts:23 ~ insertNewUser ~ response", insertedAMCData)
+            
             result.amcDetail = insertedAMCData;
         }
         return result;
@@ -63,10 +63,10 @@ export const AdminService = {
         const response = await UserProfile.findOne({ where: { id } })
         const userData: any = JSON.parse(JSON.stringify(response, null, 2));
         // result = userData;
-        // console.log("🚀 ~ file: AdminService.ts:49 ~ getUserById ~ insertedAMCData", userData)
+        // 
         const amcResponse = await AMC.findOne({ where: { user_profile_id: userData.id } })
         const amcData: any = JSON.parse(JSON.stringify(amcResponse, null, 2));
-        // console.log("🚀 ~ file: AdminService.ts:53 ~ getUserById ~ amcData", amcData)
+        // 
         userData.amcDetail = amcData;
         return userData;
     },
@@ -76,7 +76,7 @@ export const AdminService = {
         const response = await Service.findOne({ where: { id } })
         const serviceDetail: any = JSON.parse(JSON.stringify(response, null, 2));
         // result = userData;
-        console.log("🚀 ~ file: AdminService.ts:78 ~ getserviceById ~ amcData", serviceDetail)
+        
         return serviceDetail;
     },
 
@@ -85,7 +85,7 @@ export const AdminService = {
         const response = await Ticket.findOne({ where: { id } })
         const ticket: any = JSON.parse(JSON.stringify(response, null, 2));
         // result = userData;
-        console.log("🚀 ~ file: AdminService.ts:78 ~ getTicketById ~ ticket", ticket)
+        
         return ticket;
     },
 
@@ -112,16 +112,16 @@ export const AdminService = {
         sqlStatement += updateStatement.replace(/,\s*$/, "");
         const whereStatement = ` WHERE mobile = '${data.mobile}'`;
         sqlStatement += whereStatement;
-        console.log("🚀 ~ file: AdminModel.ts:118 ~ updateUserDetail ~ sqlStatement", sqlStatement)
+        
         if (amcData) {
             const amcResult = await AMC.update(amcData, {
                 where: { user_profile_id: data.id }
             })
-            console.log("🚀 ~ file: AdminService.ts:118 ~ updateUserDetail ~ amcResult:", amcResult)
+            
         }
         return await db.sequelize.query(sqlStatement);
 
-        // console.log(data);
+        // 
         // const result = await UserProfile.update(data, {
         //     where: { id: data.id }
         // });
@@ -133,19 +133,19 @@ export const AdminService = {
 
     async createBrand(data: any) {
         const response = await Brand.create(data);
-        console.log("🚀 ~ file: AdminService.ts:80 ~ createBrand ~ response", response)
+        
         const insertedBrandData: any = JSON.parse(JSON.stringify(response, null, 2));
-        console.log("🚀 ~ file: AdminService.ts:82 ~ createBrand ~ insertedBrandData", insertedBrandData)
+        
         return insertedBrandData;
     },
 
     async getBrandList(limit: number, offset: number) {
         let brandList: any = {};
         const response = await Brand.findAll({ offset: Number(offset), limit: Number(limit) });
-        console.log("🚀 ~ file: AdminService.ts:80 ~ getBrandList ~ response", response)
+        
         const insertedBrandData: any = JSON.parse(JSON.stringify(response, null, 2));
         const [results] = await db.sequelize.query("SELECT COUNT(id) FROM brands");
-        console.log("🚀 ~ file: AdminService.ts:82 ~ getBrandList ~ insertedBrandData", insertedBrandData)
+        
         brandList.rows = insertedBrandData;
         brandList.totalCount = results[0]['COUNT(id)'];
         return brandList;
@@ -156,28 +156,28 @@ export const AdminService = {
             data,
             { where: { id } }
         )
-        console.log("🚀 ~ file: AdminService.ts:99 ~ updateBrand ~ result", result)
+        
         return result;
     },
 
     async getServiceList() {
         let serviceList: any = {};
         const response = await Service.findAll();
-        console.log("🚀 ~ file: AdminService.ts:80 ~ getServiceList ~ response", response)
+        
         const serviceData: any = JSON.parse(JSON.stringify(response, null, 2));
         const [results] = await db.sequelize.query("SELECT COUNT(id) FROM services");
-        console.log("🚀 ~ file: AdminService.ts:109 ~ getServiceList ~ serviceCount", results[0]['COUNT(id)'])
-        console.log("🚀 ~ file: AdminService.ts:82 ~ getServiceList ~ serviceData", serviceData)
+        
+        
         serviceList.rows = serviceData;
         serviceList.totalCount = results[0]['COUNT(id)']
         return serviceList;
     },
 
-    async createService(data: any) {
+    async createService(data: any) {                                                                                                                                                                                                                                                                                                                                                             
         const response = await Service.create(data);
-        console.log("🚀 ~ file: AdminService.ts:80 ~ createService ~ response", response)
+        
         const insertedServiceData: any = JSON.parse(JSON.stringify(response, null, 2));
-        console.log("🚀 ~ file: AdminService.ts:82 ~ createService ~ insertedServiceData", insertedServiceData)
+        
         return insertedServiceData;
     },
 
@@ -186,7 +186,7 @@ export const AdminService = {
             data,
             { where: { id } }
         )
-        console.log("🚀 ~ file: AdminService.ts:99 ~ updateService ~ result", result)
+        
         return result;
     },
 
@@ -221,16 +221,16 @@ export const AdminService = {
     },
 
     async savePaymentDetail(data: any) {
-        console.log("🚀 ~ file: AdminService.ts:167 ~ savePaymentDetail ~ data.ticket_id", data.ticket_id)
+        
         const result = await Ticket.update(
             { status: 'Closed', status_color: 'red' },
             { where: { id: data.ticket_id } }
         );
-        console.log("🚀 ~ file: AdminService.ts:169 ~ savePaymentDetail ~ result", JSON.parse(JSON.stringify(result, null, 2)))
+        
         const response = await PaymentDetail.create(data);
-        console.log("🚀 ~ file: AdminService.ts:80 ~ savePaymentDetail ~ response", response)
+        
         const savePaymentDetailData: any = JSON.parse(JSON.stringify(response, null, 2));
-        console.log("🚀 ~ file: AdminService.ts:82 ~ savePaymentDetail ~ savePaymentDetailData", savePaymentDetailData)
+        
         return savePaymentDetailData;
     },
 
@@ -243,7 +243,7 @@ export const AdminService = {
             data,
             { where: { ticket_id: id } }
         )
-        console.log("🚀 ~ file: AdminService.ts:99 ~ updatePaymentDetail ~ result", result)
+        
         return result;
     },
 
@@ -252,7 +252,7 @@ export const AdminService = {
             data,
             { where: { id } }
         )
-        console.log("🚀 ~ file: AdminService.ts:99 ~ updateTicket ~ result", result)
+        
         return result;
     },
 

@@ -9,11 +9,11 @@ const validation: any = {
         try {
             logger.info('Admin Middleware');
             const token = req.headers.authorization;
-            console.log("🚀 ~ file: adminMiddleware.ts:12 ~ validateToken ~ token", token)
+            
             // logger.info('Admin Middleware token', token);
             if (token) {
                 const payload: any = jwtDecode(token);
-                console.log("🚀 ~ file: adminMiddleware.ts:16 ~ validateToken ~ payload", payload)
+                
                 logger.info('Admin Middleware payload', payload);
                 if (payload && payload.role === 'ADMIN') {
                     logger.info(`Admin Middleware if role is admin : Success`);

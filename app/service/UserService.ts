@@ -8,7 +8,7 @@ export const UserService = {
     async getAllUserBySearchTerm(searchTerm : string, isTypeCustomer: any){
       let searchTermForQuery = '%'+searchTerm.toLocaleLowerCase()+'%';
       const role = isTypeCustomer ? ['AMC', 'USER']: ['ENGINEER']
-      console.log("🚀 ~ file: AdminService.ts:43 ~ getAllUserBySearchTerm ~ search:", searchTerm, isTypeCustomer, {typ: isTypeCustomer} , role)
+      
 
       const response = await UserProfile.findAll({
           include: { model: AMC },

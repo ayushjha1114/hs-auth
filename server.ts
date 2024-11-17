@@ -6,8 +6,6 @@ import path from 'path';
 import express from 'express';
 import logger from 'morgan';
 import bodyParser from 'body-parser';
-import swaggerUi from 'swagger-ui-express'
-import swaggerDocument from './docs/swagger/swagger.json'
 import errorHandlers from './app/helper/errorHandler';
 import nocache from 'nocache';
 
@@ -23,6 +21,9 @@ app.disable('x-powered-by');
 app.disable('etag');
 app.use(helmet());
 app.use(nocache());
+// uncomment when server create
+// app.use(express.static(path.join(__dirname, "build")));
+
 
 app.use(helmet.noSniff()); // set X-Content-Type-Options header
 app.use(helmet.frameguard()); // set X-Frame-Options header
@@ -32,16 +33,17 @@ app.use(bodyParser.json()); // parse application/json
 // register all custom Middleware
 app.use(cors({ optionsSuccessStatus: 200 }));
 app.use(cookieParser()); // cookies-parser
-// manage session by cookies
-app.set('views', path.join(__dirname, 'views')); // setting views
-app.set('view engine', 'hbs');
 // server side template rendering
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join('public')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use('/auth', router);
-app.use('/auth/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// un comment when build create for server
+// app.get('/*',(req, res) => {
+//   console.log(path.join(__dirname, 'build', 'index.html'));
+//   res.sendFile(path.join(__dirname, 'build', 'index.html'));
+// });
 app.use(errorHandlers.internalServerError);
 app.use(errorHandlers.PageNotFound);
 

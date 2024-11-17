@@ -1,10 +1,13 @@
-# Auth Application #
+# Auth Application
+
 ```
 A backend service in NodeJS and Express web framework to provide REST APIs.
 
 ```
 
 # Application Execution
+
+Node Version - 19.9.0
 
 ```
 git clone https://github.com/ayushjha1114/hs-auth.git
@@ -34,3 +37,7 @@ NODE_ENV='dev'
 "clean" : "rm -rf dist",
 "copy" : "cp -r uploads dist/ && cp -r app/global dist/app/"
 ```
+
+# Application on production
+
+Please create dist forder using `npx tsc` after this copy the models folder and config in this folder with `.env` file . then ready to run with server.js also upload build folder for UI

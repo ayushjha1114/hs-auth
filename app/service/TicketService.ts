@@ -12,27 +12,17 @@ export const TicketService = {
 			include: Follow_up,
 		});
 		const ticket: any = JSON.parse(JSON.stringify(response, null, 2));
-		// result = userData;
-		console.log(
-			"🚀 ~ file: AdminService.ts:78 ~ getTicketById ~ ticket",
-			ticket
-		);
+		
 		return ticket;
 	},
 
 	async saveFollowUp(data: any) {
-		console.log("🚀 ~ file: TicketService.ts:24 ~ saveFollowUp ~ data:", data);
+		
 
 		const response = await Follow_up.create(data);
-		console.log(
-			"🚀 ~ file: TicketService.ts:26 ~ saveFollowUp ~ response:",
-			response
-		);
+		
 		const followUp: any = JSON.parse(JSON.stringify(response, null, 2));
-		console.log(
-			"🚀 ~ file: TicketService.ts:28 ~ saveFollowUp ~ followUp:",
-			followUp
-		);
+		
 		return followUp;
 	},
 };
