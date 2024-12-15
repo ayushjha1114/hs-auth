@@ -37,8 +37,8 @@ const customerEmailTicketCreationTemplate = (data) => {
 
 const engineerEmailTicketCreationTemplate = (data) => {
     const { customer, service_provided, ticket_number, priority='-', remark='-', visit_address='-', userData, parent_service } = data;
-    const { amcDetail = {} } = userData;
-    const { plan_expired_date = '' } = amcDetail;
+    const amcDetail = userData?.amcDetail ? userData?.amcDetail :{} ;
+    const  plan_expired_date = amcDetail?.plan_expired_date ? amcDetail?.plan_expired_date : null;
 
     return `<p>Hi</p>
             </br>

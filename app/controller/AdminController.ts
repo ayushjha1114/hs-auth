@@ -400,24 +400,23 @@ class AdminController {
 				const userData = JSON.parse(JSON.stringify(customerData, null, 2));
 				data.userData = userData;
 				data.engineerEmail = body.engineerEmail;
-				const customerEmailResult = await customerTicketCreationEmail(data);
-				if (customerEmailResult.accepted.length === 0) {
-					return res.json({
-						success: false,
-						message:
-							"Ticket created Successfully. Customer email failed to send",
-					});
-				}
-				
-				const engineerEmailResult = await engineerTicketCreationEmail(data);
-				
-				if (engineerEmailResult.accepted.length === 0) {
-					return res.json({
-						success: false,
-						message:
-							"Ticket created Successfully. Engineer email failed to send",
-					});
-				}
+				customerTicketCreationEmail(data);
+				engineerTicketCreationEmail(data);
+				// if (!customerEmailResult || !engineerEmailResult) {
+				// 	let message ="Ticket created Successfully";
+				// 	let status = "true";
+				// 	if(!customerEmailResult?.messageId) {
+				// 		message = "Ticket created Successfully. Customer email failed to send";
+				// 		status= "false";
+				// 	} else if(!engineerEmailResult?.messageId) {
+				// 		message = "Ticket created Successfully. Engineer email failed to send";
+				// 		status= "false";
+				// 	}
+				// 	return res.json({
+				// 		success :status,
+				// 		message
+				// 	});
+				// }
 				return res.json(
 					Template.success({ rows: response }, SuccessMessage.TICKET_CREATED)
 				);
